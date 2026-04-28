@@ -3,81 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Locked with Love</title>
+    <title>Locked with Love - The Secret Vault 💖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(rgba(255, 182, 193, 0.6), rgba(255, 182, 193, 0.6)), 
-                        url('us.jpg') no-repeat center 70% / cover fixed;
-            background-size: cover;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        /* --- GLOBAL & BACKGROUND --- */
+        body, html {
+            height: 100vh; /* Standard desktop viewport height */
             margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Varela Round', sans-serif;
+            background-color: #ffebee;
+            position: relative;
+            user-select: none; /* Prevents accidental text highlighting with the mouse */
         }
-        .lock-container {
+
+        /* --- THE FIXED KEYPAD BOX (DESKTOP SCALED) --- */
+        #keypadBox {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            width: 320px;
-            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px 40px 45px 40px; /* Bigger padding */
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            width: 420px; /* Much wider for desktop */
+            z-index: 100;
         }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+
+        /* --- SHAKE ANIMATION FOR WRONG PIN --- */
+        .shake-animation {
+            animation: shakeBox 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
-        .error-shake { animation: shake 0.4s ease-in-out; border: 2px solid red; }
-        h2 { color: #d63384; }
-        input {
-            padding: 15px;
-            font-size: 1.5rem;
-            width: 80%;
-            text-align: center;
-            border: 2px solid #ffb6c1;
+
+        @keyframes shakeBox {
+            10%, 90% { transform: translate(calc(-50% - 6px), -50%); }
+            20%, 80% { transform: translate(calc(-50% + 8px), -50%); }
+            30%, 50%, 70% { transform: translate(calc(-50% - 15px), -50%); }
+            40%, 60% { transform: translate(calc(-50% + 15px), -50%); }
+        }
+
+        /* --- THE CUTE RIBBON ON VAULT 🎀 --- */
+        #keypadBox::before {
+            content: "BEETROOT's Locker 🎀";
+            position: absolute;
+            top: -22px;
+            left: 35px;
+            background: linear-gradient(135deg, #ff6b81, #d63384);
+            color: white;
+            padding: 10px 25px;
             border-radius: 15px;
-            outline: none;
+            font-weight: bold;
+            font-size: 1.3rem;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            z-index: 110;
         }
-        button {
-            margin-top: 20px;
-            padding: 12px 30px;
+
+        #pinDisplay {
+            font-size: 3.5rem; /* Massive numbers */
+            color: #d63384;
+            letter-spacing: 8px;
+            font-weight: bold;
+            margin: 15px 0 25px 0;
+            opacity: 0.8;
+            min-height: 4rem;
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px; 
+        }
+
+        .keypad-grid button {
+            background-color: white;
+            color: #ff6b81;
+            border: 3px solid #ffcdd2;
+            padding: 20px 0; 
+            font-size: 2rem; /* Giant buttons */
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Varela Round', sans-serif;
+            transition: all 0.1s;
+        }
+        .keypad-grid button:hover {
+            background-color: #fff0f2; /* Nice hover effect for mouse users */
+        }
+        .keypad-grid button:active {
+            background-color: #ffebee;
+            transform: scale(0.95);
+        }
+
+        .keypad-grid button.clear-btn {
             background-color: #ff6b81;
             color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
+            border: 3px solid #ff6b81;
+            font-size: 1.5rem;
         }
+        .keypad-grid button.clear-btn:active {
+            background-color: #ef5350;
+        }
+        
+        #hint {
+            color: #ef5350;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 1.5rem;
+        }
+
+        /* --- THE BOUNCING PHOTOS (DESKTOP SCALED) --- */
+        .bounce-photo {
+            position: absolute;
+            width: 300px; /* Huge photos for the big screen! */
+            height: auto;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            border: 5px solid white;
+            z-index: 10;
+            opacity: 0.95;
+            left: 0; 
+            top: 0;
+        }
+
+        /* --- FLOATING HEARTS --- */
+        #heartContainer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            color: rgba(255, 107, 129, 0.7);
+            animation: floatHearts 6s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatHearts {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-110vh); opacity: 0; }
+        }
+
+        /* --- RIBBON BURST PARTICLES --- */
+        .ribbon-particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 2.5rem; /* Bigger ribbons */
+            z-index: 120;
+            animation: ribbonBurst 1.2s ease-out forwards; 
+        }
+
+        @keyframes ribbonBurst {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
-    <div class="lock-container" id="box">
-        <h2>🔒 Secret Vault</h2>
-        <p>What is my fav number of 2 digit?</p>
-        <input type="number" id="guess" placeholder="00">
-        <br>
-        <button onclick="checkAnswer()">Unlock ❤️</button>
-        <p id="hint" style="color: #d63384; font-weight: bold; margin-top: 15px;"></p>
+
+    <div id="keypadBox">
+        <div id="pinDisplay">--</div>
+        
+        <div class="keypad-grid">
+            <button onclick="pressNum(1)">1</button><button onclick="pressNum(2)">2</button><button onclick="pressNum(3)">3</button>
+            <button onclick="pressNum(4)">4</button><button onclick="pressNum(5)">5</button><button onclick="pressNum(6)">6</button>
+            <button onclick="pressNum(7)">7</button><button onclick="pressNum(8)">8</button><button onclick="pressNum(9)">9</button>
+            <button></button><button onclick="pressNum(0)">0</button><button class="clear-btn" onclick="clearPIN()">C</button>
+        </div>
+        
+        <div id="hint"></div>
     </div>
+    
+    <div id="heartContainer"></div>
+    
+    <img id="photo1" class="bounce-photo" src="./us.jpg" alt="Photo 1">
+    <img id="photo2" class="bounce-photo" src="./us.jpg" alt="Photo 2">
+    <img id="photo3" class="bounce-photo" src="./us.jpg" alt="Photo 3">
+    <img id="photo4" class="bounce-photo" src="./us.jpg" alt="Photo 4">
 
     <script>
-        function checkAnswer() {
-            const input = document.getElementById('guess');
-            const box = document.getElementById('box');
-            const correctAnswer = "18"; // <-- CHANGE YOUR NUMBER HERE
+        // --- 1. Keypad Logic & Shake/Spin States ---
+        let currentPIN = "";
+        const CORRECT_PIN = "42"; // <-- CHANGE THIS
+        const display = document.getElementById('pinDisplay');
+        const hint = document.getElementById('hint');
+        const keypadBox = document.getElementById('keypadBox');
+        
+        let isSpinning = false;
+        let currentRotation = 0;
 
-            if (input.value === correctAnswer) {
-                window.location.href = "surprise.html";
-            } else {
-                box.classList.add('error-shake');
-                document.getElementById('hint').innerText = "Wrong! Try again, babe! 😘";
-                input.value = "";
-                setTimeout(() => box.classList.remove('error-shake'), 400);
+        function pressNum(num) {
+            if (currentPIN.length < 2) {
+                currentPIN += num;
+                updateDisplay();
+                hint.innerText = "";
+                if (currentPIN.length === 2) {
+                    checkPIN();
+                }
             }
         }
+
+        function clearPIN() {
+            currentPIN = "";
+            updateDisplay();
+            hint.innerText = "";
+        }
+
+        function updateDisplay() {
+            display.innerText = (currentPIN === "") ? "--" : currentPIN;
+        }
+
+        function checkPIN() {
+            if (currentPIN === CORRECT_PIN) {
+                window.location.href = "surprise.html";
+            } else {
+                hint.style.color = "#ef5350";
+                hint.innerText = "Wrong! ❌";
+                
+                keypadBox.classList.add('shake-animation');
+                setTimeout(() => {
+                    keypadBox.classList.remove('shake-animation');
+                }, 400);
+
+                isSpinning = true;
+                setTimeout(clearPIN, 1000);
+            }
+        }
+
+        // Add keyboard support so she can type the numbers on the laptop!
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            if (key >= '0' && key <= '9') {
+                pressNum(parseInt(key));
+            } else if (key === 'Backspace' || key === 'Delete' || key.toLowerCase() === 'c') {
+                clearPIN();
+            }
+        });
+
+        // --- 2. Ribbon Burst Effect Logic ---
+        function createRibbonBurst(x, y) {
+            const burstCount = 7; 
+            for (let i = 0; i < burstCount; i++) {
+                const ribbon = document.createElement('div');
+                ribbon.innerText = '🎀';
+                ribbon.classList.add('ribbon-particle');
+                ribbon.style.left = x + 'px';
+                ribbon.style.top = y + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 80 + Math.random() * 100; // Wider blast for desktop
+                const tx = Math.cos(angle) * distance + 'px';
+                const ty = Math.sin(angle) * distance + 'px';
+                
+                ribbon.style.setProperty('--tx', `calc(-50% + ${tx})`);
+                ribbon.style.setProperty('--ty', `calc(-50% + ${ty})`);
+                
+                document.body.appendChild(ribbon);
+                setTimeout(() => ribbon.remove(), 1200);
+            }
+        }
+
+        // --- 3. Bouncing Photos Logic ---
+        const photos = [
+            document.getElementById('photo1'),
+            document.getElementById('photo2'),
+            document.getElementById('photo3'),
+            document.getElementById('photo4')
+        ];
+        
+        // Increased vx and vy for faster desktop movement
+        let photoStates = [
+            { id: 1, x: 0, y: 0, vx: 3.5, vy: 3.2, w: 0, h: 0, elem: photos[0] },   
+            { id: 2, x: 0, y: 0, vx: -3.8, vy: 3.0, w: 0, h: 0, elem: photos[1] },  
+            { id: 3, x: 0, y: 0, vx: 3.2, vy: -3.5, w: 0, h: 0, elem: photos[2] },  
+            { id: 4, x: 0, y: 0, vx: -3.6, vy: -3.9, w: 0, h: 0, elem: photos[3] }  
+        ];
+
+        function handleScreenCollision(photo, screenBounds) {
+            let collided = false;
+            let impactX = photo.x + (photo.w / 2);
+            let impactY = photo.y + (photo.h / 2);
+
+            if (photo.x <= 0) {
+                photo.x = 0; photo.vx *= -1; collided = true; impactX = 0;
+            } else if (photo.x >= screenBounds.w - photo.w) {
+                photo.x = screenBounds.w - photo.w; photo.vx *= -1; collided = true; impactX = screenBounds.w;
+            }
+            
+            if (photo.y <= 0) {
+                photo.y = 0; photo.vy *= -1; collided = true; impactY = 0;
+            } else if (photo.y >= screenBounds.h - photo.h) {
+                photo.y = screenBounds.h - photo.h; photo.vy *= -1; collided = true; impactY = screenBounds.h;
+            }
+
+            if (collided) createRibbonBurst(impactX, impactY);
+        }
+
+        function getRectIntersect(r1, r2) {
+            return !(r2.left > r1.right || r2.right < r1.left || 
+                     r2.top > r1.bottom || r2.bottom < r1.top);
+        }
+
+        function handleObjectCollision(photo, objRect) {
+            let pRect = { left: photo.x, top: photo.y, right: photo.x + photo.w, bottom: photo.y + photo.h, width: photo.w, height: photo.h };
+
+            if (getRectIntersect(pRect, objRect)) {
+                let leftOverlap = objRect.right - pRect.left;
+                let rightOverlap = pRect.right - objRect.left;
+                let topOverlap = objRect.bottom - pRect.top;
+                let bottomOverlap = pRect.bottom - objRect.top;
+
+                let minOverlap = Math.min(leftOverlap, rightOverlap, topOverlap, bottomOverlap);
+                let impactX = pRect.left + (pRect.width / 2);
+                let impactY = pRect.top + (pRect.height / 2);
+
+                if (minOverlap === leftOverlap) {
+                    photo.x = objRect.right; photo.vx *= -1; impactX = objRect.right;
+                } else if (minOverlap === rightOverlap) {
+                    photo.x = objRect.left - photo.w; photo.vx *= -1; impactX = objRect.left;
+                } else if (minOverlap === topOverlap) {
+                    photo.y = objRect.bottom; photo.vy *= -1; impactY = objRect.bottom;
+                } else {
+                    photo.y = objRect.top - photo.h; photo.vy *= -1; impactY = objRect.top;
+                }
+                
+                createRibbonBurst(impactX, impactY);
+            }
+        }
+
+        function handlePhotoCollision(p1, p2) {
+            let r1 = { left: p1.x, right: p1.x + p1.w, top: p1.y, bottom: p1.y + p1.h, width: p1.w, height: p1.h };
+            let r2 = { left: p2.x, right: p2.x + p2.w, top: p2.y, bottom: p2.y + p2.h, width: p2.w, height: p2.h };
+
+            if (getRectIntersect(r1, r2)) {
+                let tempVx = p1.vx;
+                let tempVy = p1.vy;
+                p1.vx = p2.vx;
+                p1.vy = p2.vy;
+                p2.vx = tempVx;
+                p2.vy = tempVy;
+
+                let dx = (p1.x + p1.w/2) - (p2.x + p2.w/2);
+                let dy = (p1.y + p1.h/2) - (p2.y + p2.h/2);
+                let overlapX = (p1.w/2 + p2.w/2) - Math.abs(dx);
+                let overlapY = (p1.h/2 + p2.h/2) - Math.abs(dy);
+
+                if (overlapX < overlapY) {
+                    if (dx > 0) { p1.x += overlapX/2; p2.x -= overlapX/2; }
+                    else { p1.x -= overlapX/2; p2.x += overlapX/2; }
+                } else {
+                    if (dy > 0) { p1.y += overlapY/2; p2.y -= overlapY/2; }
+                    else { p1.y -= overlapY/2; p2.y += overlapY/2; }
+                }
+
+                let impactX = (p1.x + p1.w/2 + p2.x + p2.w/2) / 2;
+                let impactY = (p1.y + p1.h/2 + p2.y + p2.h/2) / 2;
+                createRibbonBurst(impactX, impactY);
+            }
+        }
+
+        function updatePhotos() {
+            const screenBounds = { w: document.documentElement.clientWidth, h: document.documentElement.clientHeight };
+            const keypadRect = keypadBox.getBoundingClientRect();
+            
+            if (isSpinning) {
+                currentRotation += 2.5; // Slightly faster spin
+            }
+
+            photoStates.forEach(photo => {
+                photo.x += photo.vx;
+                photo.y += photo.vy;
+                
+                handleScreenCollision(photo, screenBounds);
+                handleObjectCollision(photo, keypadRect);
+            });
+
+            for (let i = 0; i < photoStates.length; i++) {
+                for (let j = i + 1; j < photoStates.length; j++) {
+                    if (photoStates[i].w > 0 && photoStates[j].w > 0) {
+                        handlePhotoCollision(photoStates[i], photoStates[j]);
+                    }
+                }
+            }
+
+            photoStates.forEach(photo => {
+                photo.elem.style.transform = `translate(${photo.x}px, ${photo.y}px) rotate(${currentRotation}deg)`;
+            });
+
+            requestAnimationFrame(updatePhotos);
+        }
+
+        // --- 4. Floating Hearts Logic ---
+        function createHeart() {
+            const container = document.getElementById('heartContainer');
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerText = '💗'; 
+
+            const randomX = Math.random() * 100;
+            const randomDuration = 4 + Math.random() * 5; 
+            const randomSize = 2 + Math.random() * 3; // Huge hearts for desktop
+            const randomDelay = Math.random() * 1; 
+
+            heart.style.left = randomX + '%';
+            heart.style.animationDuration = randomDuration + 's';
+            heart.style.fontSize = randomSize + 'rem';
+            heart.style.animationDelay = randomDelay + 's';
+
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), (randomDuration + randomDelay) * 1000);
+        }
+
+        setInterval(createHeart, 150);
+
+        window.addEventListener('load', () => {
+            const screenW = document.documentElement.clientWidth;
+            const screenH = document.documentElement.clientHeight;
+            const margin = 20; // Bigger margin from the edges
+            
+            setTimeout(() => {
+                photoStates.forEach(photo => {
+                    photo.w = photo.elem.offsetWidth;
+                    photo.h = photo.elem.offsetHeight;
+                });
+
+                photoStates[0].x = margin;
+                photoStates[0].y = margin;
+                
+                photoStates[1].x = screenW - photoStates[1].w - margin;
+                photoStates[1].y = margin;
+                
+                photoStates[2].x = margin;
+                photoStates[2].y = screenH - photoStates[2].h - margin;
+                
+                photoStates[3].x = screenW - photoStates[3].w - margin;
+                photoStates[3].y = screenH - photoStates[3].h - margin;
+
+                requestAnimationFrame(updatePhotos);
+            }, 50);
+        });
+
     </script>
 </body>
 </html>
