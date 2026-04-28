@@ -1,54 +1,82 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Secret for You</title>
+    <title>Locked with Love</title>
     <style>
         body {
-            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
-            height: 100vh;
+            background: linear-gradient(rgba(255, 182, 193, 0.6), rgba(255, 182, 193, 0.6)), 
+                        url('us.jpg') no-content center/cover fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            font-family: 'Arial', sans-serif;
+        }
+        .lock-container {
             text-align: center;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 320px;
+            transition: 0.3s;
         }
-        .container {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
-        h1 { color: #d63384; font-size: 28px; }
-        .heart {
-            font-size: 80px;
-            animation: beat 1s infinite alternate;
+        .error-shake { animation: shake 0.4s ease-in-out; border: 2px solid red; }
+        h2 { color: #d63384; }
+        input {
+            padding: 15px;
+            font-size: 1.5rem;
+            width: 80%;
+            text-align: center;
+            border: 2px solid #ffb6c1;
+            border-radius: 15px;
+            outline: none;
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: #ff6b81;
+            color: white;
+            border: none;
+            border-radius: 50px;
             cursor: pointer;
+            font-weight: bold;
         }
-        @keyframes beat {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
-        }
-        p { color: #333; font-size: 18px; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <div class="heart" onclick="showMessage()">❤️</div>
-        <h1>For My Favorite Person</h1>
-        <p id="text">I built this website just for you!</p>
+    <div class="lock-container" id="box">
+        <h2>🔒 Secret Vault</h2>
+        <p>What is my fav number of 2 digit?</p>
+        <input type="number" id="guess" placeholder="00">
+        <br>
+        <button onclick="checkAnswer()">Unlock ❤️</button>
+        <p id="hint" style="color: #d63384; font-weight: bold; margin-top: 15px;"></p>
     </div>
 
     <script>
-        function showMessage() {
-            document.getElementById('text').innerHTML = "<b>I love you more than code!</b> <br><br> (And I built this from my phone!)";
-            document.getElementById('text').style.color = "#d63384";
+        function checkAnswer() {
+            const input = document.getElementById('guess');
+            const box = document.getElementById('box');
+            const correctAnswer = "18"; // <-- CHANGE YOUR NUMBER HERE
+
+            if (input.value === correctAnswer) {
+                window.location.href = "surprise.html";
+            } else {
+                box.classList.add('error-shake');
+                document.getElementById('hint').innerText = "Wrong! Try again, babe! 😘";
+                input.value = "";
+                setTimeout(() => box.classList.remove('error-shake'), 400);
+            }
         }
     </script>
 </body>
