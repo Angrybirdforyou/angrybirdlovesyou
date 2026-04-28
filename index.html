@@ -2,36 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Locked with Love - The Secret Vault 💖</title>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
         /* --- GLOBAL & BACKGROUND --- */
         body, html {
-            height: 100vh; /* Standard desktop viewport height */
+            height: 100vh;
             margin: 0;
             padding: 0;
             overflow: hidden;
             font-family: 'Varela Round', sans-serif;
             background-color: #ffebee;
             position: relative;
-            user-select: none; /* Prevents accidental text highlighting with the mouse */
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation; /* Prevents touch delay and zoom */
         }
 
-        /* --- THE FIXED KEYPAD BOX (DESKTOP SCALED) --- */
+        /* --- THE FIXED KEYPAD BOX (FROSTED GLASS UPGRADE) --- */
         #keypadBox {
             position: fixed;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            
             text-align: center;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 60px 40px 45px 40px; /* Bigger padding */
+            
+            /* Apple-Style Glassmorphism */
+            background: rgba(255, 255, 255, 0.5); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            
+            padding: 50px 35px 40px 35px;
             border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            width: 420px; /* Much wider for desktop */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            width: 360px; /* Perfect hybrid size for Tablet/Desktop */
             z-index: 100;
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease;
+        }
+
+        /* --- THE CUTE RIBBON ON VAULT 🎀 --- */
+        #keypadBox::before {
+            content: "BEETROOT's Locker 🎀";
+            position: absolute;
+            top: -20px;
+            left: 30px;
+            background: linear-gradient(135deg, #ff6b81, #d63384);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            z-index: 110;
         }
 
         /* --- SHAKE ANIMATION FOR WRONG PIN --- */
@@ -46,30 +70,15 @@
             40%, 60% { transform: translate(calc(-50% + 15px), -50%); }
         }
 
-        /* --- THE CUTE RIBBON ON VAULT 🎀 --- */
-        #keypadBox::before {
-            content: "BEETROOT's Locker 🎀";
-            position: absolute;
-            top: -22px;
-            left: 35px;
-            background: linear-gradient(135deg, #ff6b81, #d63384);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 1.3rem;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-            z-index: 110;
-        }
-
         #pinDisplay {
-            font-size: 3.5rem; /* Massive numbers */
+            font-size: 3rem; 
             color: #d63384;
             letter-spacing: 8px;
             font-weight: bold;
-            margin: 15px 0 25px 0;
-            opacity: 0.8;
-            min-height: 4rem;
+            margin: 10px 0 20px 0;
+            opacity: 0.9;
+            min-height: 3.5rem;
+            text-shadow: 0 2px 5px rgba(255,255,255,0.8);
         }
 
         .keypad-grid {
@@ -79,29 +88,29 @@
         }
 
         .keypad-grid button {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.8);
             color: #ff6b81;
-            border: 3px solid #ffcdd2;
-            padding: 20px 0; 
-            font-size: 2rem; /* Giant buttons */
-            border-radius: 20px;
+            border: 2px solid rgba(255, 205, 210, 0.8);
+            padding: 18px 0; 
+            font-size: 1.8rem; 
+            border-radius: 18px;
             cursor: pointer;
             font-family: 'Varela Round', sans-serif;
             transition: all 0.1s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .keypad-grid button:hover {
-            background-color: #fff0f2; /* Nice hover effect for mouse users */
+            background-color: #fff; 
         }
         .keypad-grid button:active {
             background-color: #ffebee;
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
-
         .keypad-grid button.clear-btn {
             background-color: #ff6b81;
             color: white;
-            border: 3px solid #ff6b81;
-            font-size: 1.5rem;
+            border: none;
+            font-size: 1.3rem;
         }
         .keypad-grid button.clear-btn:active {
             background-color: #ef5350;
@@ -109,25 +118,31 @@
         
         #hint {
             color: #ef5350;
-            font-size: 1.1rem;
-            margin-top: 20px;
+            font-size: 1rem;
+            margin-top: 15px;
             font-weight: bold;
-            min-height: 1.5rem;
+            min-height: 1.2rem;
         }
 
-        /* --- THE BOUNCING PHOTOS (DESKTOP SCALED) --- */
+        /* --- THE BOUNCING PHOTOS (POLAROID UPGRADE) --- */
         .bounce-photo {
             position: absolute;
-            width: 300px; /* Huge photos for the big screen! */
+            width: 230px; /* Tablet friendly */
             height: auto;
             object-fit: cover;
-            border-radius: 20px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
-            border: 5px solid white;
+            
+            /* Polaroid Look */
+            border: 12px solid white;
+            border-bottom: 45px solid white; 
+            border-radius: 5px; /* Sharp, slightly rounded corners */
+            background-color: white; /* In case of transparent images */
+            
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             z-index: 10;
             opacity: 0.95;
             left: 0; 
             top: 0;
+            transition: opacity 1.2s ease-in-out; /* Smooth fading */
         }
 
         /* --- FLOATING HEARTS --- */
@@ -142,25 +157,24 @@
         .floating-heart {
             position: absolute;
             bottom: -50px;
-            color: rgba(255, 107, 129, 0.7);
-            animation: floatHearts 6s linear infinite;
+            color: rgba(255, 107, 129, 0.8);
+            animation: floatHearts linear infinite forwards;
             opacity: 0;
         }
 
         @keyframes floatHearts {
             0% { transform: translateY(0); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateY(-110vh); opacity: 0; }
+            10% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { transform: translateY(-120vh); opacity: 0; }
         }
 
-        /* --- RIBBON BURST PARTICLES --- */
         .ribbon-particle {
             position: absolute;
             pointer-events: none;
-            font-size: 2.5rem; /* Bigger ribbons */
+            font-size: 2rem; 
             z-index: 120;
-            animation: ribbonBurst 1.2s ease-out forwards; 
+            animation: ribbonBurst 1s ease-out forwards; 
         }
 
         @keyframes ribbonBurst {
@@ -168,9 +182,28 @@
             100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
         }
 
+        /* --- SUCCESS TRANSITION OVERLAY --- */
+        #pageOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #ffebee; 
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+        
+        /* Utility class to hide items cleanly */
+        .fade-out {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
+
+    <div id="pageOverlay"></div>
 
     <div id="keypadBox">
         <div id="pinDisplay">--</div>
@@ -187,24 +220,24 @@
     
     <div id="heartContainer"></div>
     
-    <img id="photo1" class="bounce-photo" src="./us.jpg" alt="Photo 1">
-    <img id="photo2" class="bounce-photo" src="./us.jpg" alt="Photo 2">
-    <img id="photo3" class="bounce-photo" src="./us.jpg" alt="Photo 3">
-    <img id="photo4" class="bounce-photo" src="./us.jpg" alt="Photo 4">
+    <img id="photo1" class="bounce-photo" src="./us.jpg" alt="Photo">
+    <img id="photo2" class="bounce-photo" src="./us.jpg" alt="Photo">
+    <img id="photo3" class="bounce-photo" src="./us.jpg" alt="Photo">
+    <img id="photo4" class="bounce-photo" src="./us.jpg" alt="Photo">
 
     <script>
-        // --- 1. Keypad Logic & Shake/Spin States ---
         let currentPIN = "";
-        const CORRECT_PIN = "18"; // <-- CHANGE THIS
+        const CORRECT_PIN = "42"; // <-- CHANGE THIS
         const display = document.getElementById('pinDisplay');
         const hint = document.getElementById('hint');
         const keypadBox = document.getElementById('keypadBox');
         
         let isSpinning = false;
         let currentRotation = 0;
+        let isUnlocked = false; // Tracks if we are in the success transition
 
         function pressNum(num) {
-            if (currentPIN.length < 2) {
+            if (currentPIN.length < 2 && !isUnlocked) {
                 currentPIN += num;
                 updateDisplay();
                 hint.innerText = "";
@@ -215,6 +248,7 @@
         }
 
         function clearPIN() {
+            if (isUnlocked) return;
             currentPIN = "";
             updateDisplay();
             hint.innerText = "";
@@ -226,23 +260,52 @@
 
         function checkPIN() {
             if (currentPIN === CORRECT_PIN) {
-                window.location.href = "surprise.html";
+                // --- SUCCESS SEQUENCE ---
+                isUnlocked = true;
+                hint.style.color = "#4CAF50";
+                hint.innerText = "Unlocked! 💖";
+                
+                // 1. Fade away the keypad and the 4 photos
+                keypadBox.classList.add('fade-out');
+                photos.forEach(photo => photo.elem.classList.add('fade-out'));
+
+                // 2. Overdrive the Hearts! (Clear slow interval, start fast one)
+                clearInterval(heartInterval);
+                heartInterval = setInterval(createHeart, 30); // Explosion of hearts every 30ms
+
+                // 3. Fade to loading screen and jump to surprise page
+                setTimeout(() => {
+                    document.getElementById('pageOverlay').style.opacity = '1';
+                }, 2500); // Wait 2.5 seconds enjoying the massive heart explosion
+
+                setTimeout(() => {
+                    window.location.href = "surprise.html";
+                }, 4000); // Transition complete!
+
             } else {
+                // --- WRONG PIN SEQUENCE ---
                 hint.style.color = "#ef5350";
                 hint.innerText = "Wrong! ❌";
                 
+                // Shake Animation
                 keypadBox.classList.add('shake-animation');
-                setTimeout(() => {
-                    keypadBox.classList.remove('shake-animation');
-                }, 400);
+                setTimeout(() => { keypadBox.classList.remove('shake-animation'); }, 400);
 
+                // Start Spinning the photos
                 isSpinning = true;
+
+                // Haptic Feedback Vibration (Only works on mobile/tablet devices)
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100, 50, 200]); // Angry triple-buzz
+                }
+
                 setTimeout(clearPIN, 1000);
             }
         }
 
-        // Add keyboard support so she can type the numbers on the laptop!
+        // Keyboard typing support
         document.addEventListener('keydown', function(event) {
+            if (isUnlocked) return;
             const key = event.key;
             if (key >= '0' && key <= '9') {
                 pressNum(parseInt(key));
@@ -251,10 +314,10 @@
             }
         });
 
-        // --- 2. Ribbon Burst Effect Logic ---
+        // --- Ribbon Burst Logic ---
         function createRibbonBurst(x, y) {
-            const burstCount = 7; 
-            for (let i = 0; i < burstCount; i++) {
+            if (isUnlocked) return; // Stop bursts when fading out
+            for (let i = 0; i < 7; i++) {
                 const ribbon = document.createElement('div');
                 ribbon.innerText = '🎀';
                 ribbon.classList.add('ribbon-particle');
@@ -262,7 +325,7 @@
                 ribbon.style.top = y + 'px';
                 
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 80 + Math.random() * 100; // Wider blast for desktop
+                const distance = 60 + Math.random() * 80; 
                 const tx = Math.cos(angle) * distance + 'px';
                 const ty = Math.sin(angle) * distance + 'px';
                 
@@ -270,24 +333,16 @@
                 ribbon.style.setProperty('--ty', `calc(-50% + ${ty})`);
                 
                 document.body.appendChild(ribbon);
-                setTimeout(() => ribbon.remove(), 1200);
+                setTimeout(() => ribbon.remove(), 1000);
             }
         }
 
-        // --- 3. Bouncing Photos Logic ---
+        // --- Bouncing Photos Logic ---
         const photos = [
-            document.getElementById('photo1'),
-            document.getElementById('photo2'),
-            document.getElementById('photo3'),
-            document.getElementById('photo4')
-        ];
-        
-        // Increased vx and vy for faster desktop movement
-        let photoStates = [
-            { id: 1, x: 0, y: 0, vx: 3.5, vy: 3.2, w: 0, h: 0, elem: photos[0] },   
-            { id: 2, x: 0, y: 0, vx: -3.8, vy: 3.0, w: 0, h: 0, elem: photos[1] },  
-            { id: 3, x: 0, y: 0, vx: 3.2, vy: -3.5, w: 0, h: 0, elem: photos[2] },  
-            { id: 4, x: 0, y: 0, vx: -3.6, vy: -3.9, w: 0, h: 0, elem: photos[3] }  
+            { id: 1, x: 0, y: 0, vx: 3.0, vy: 2.8, w: 0, h: 0, elem: document.getElementById('photo1') },   
+            { id: 2, x: 0, y: 0, vx: -3.3, vy: 2.5, w: 0, h: 0, elem: document.getElementById('photo2') },  
+            { id: 3, x: 0, y: 0, vx: 2.7, vy: -3.0, w: 0, h: 0, elem: document.getElementById('photo3') },  
+            { id: 4, x: 0, y: 0, vx: -3.1, vy: -3.4, w: 0, h: 0, elem: document.getElementById('photo4') }  
         ];
 
         function handleScreenCollision(photo, screenBounds) {
@@ -295,24 +350,17 @@
             let impactX = photo.x + (photo.w / 2);
             let impactY = photo.y + (photo.h / 2);
 
-            if (photo.x <= 0) {
-                photo.x = 0; photo.vx *= -1; collided = true; impactX = 0;
-            } else if (photo.x >= screenBounds.w - photo.w) {
-                photo.x = screenBounds.w - photo.w; photo.vx *= -1; collided = true; impactX = screenBounds.w;
-            }
+            if (photo.x <= 0) { photo.x = 0; photo.vx *= -1; collided = true; impactX = 0; } 
+            else if (photo.x >= screenBounds.w - photo.w) { photo.x = screenBounds.w - photo.w; photo.vx *= -1; collided = true; impactX = screenBounds.w; }
             
-            if (photo.y <= 0) {
-                photo.y = 0; photo.vy *= -1; collided = true; impactY = 0;
-            } else if (photo.y >= screenBounds.h - photo.h) {
-                photo.y = screenBounds.h - photo.h; photo.vy *= -1; collided = true; impactY = screenBounds.h;
-            }
+            if (photo.y <= 0) { photo.y = 0; photo.vy *= -1; collided = true; impactY = 0; } 
+            else if (photo.y >= screenBounds.h - photo.h) { photo.y = screenBounds.h - photo.h; photo.vy *= -1; collided = true; impactY = screenBounds.h; }
 
             if (collided) createRibbonBurst(impactX, impactY);
         }
 
         function getRectIntersect(r1, r2) {
-            return !(r2.left > r1.right || r2.right < r1.left || 
-                     r2.top > r1.bottom || r2.bottom < r1.top);
+            return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
         }
 
         function handleObjectCollision(photo, objRect) {
@@ -328,15 +376,10 @@
                 let impactX = pRect.left + (pRect.width / 2);
                 let impactY = pRect.top + (pRect.height / 2);
 
-                if (minOverlap === leftOverlap) {
-                    photo.x = objRect.right; photo.vx *= -1; impactX = objRect.right;
-                } else if (minOverlap === rightOverlap) {
-                    photo.x = objRect.left - photo.w; photo.vx *= -1; impactX = objRect.left;
-                } else if (minOverlap === topOverlap) {
-                    photo.y = objRect.bottom; photo.vy *= -1; impactY = objRect.bottom;
-                } else {
-                    photo.y = objRect.top - photo.h; photo.vy *= -1; impactY = objRect.top;
-                }
+                if (minOverlap === leftOverlap) { photo.x = objRect.right; photo.vx *= -1; impactX = objRect.right; } 
+                else if (minOverlap === rightOverlap) { photo.x = objRect.left - photo.w; photo.vx *= -1; impactX = objRect.left; } 
+                else if (minOverlap === topOverlap) { photo.y = objRect.bottom; photo.vy *= -1; impactY = objRect.bottom; } 
+                else { photo.y = objRect.top - photo.h; photo.vy *= -1; impactY = objRect.top; }
                 
                 createRibbonBurst(impactX, impactY);
             }
@@ -347,12 +390,9 @@
             let r2 = { left: p2.x, right: p2.x + p2.w, top: p2.y, bottom: p2.y + p2.h, width: p2.w, height: p2.h };
 
             if (getRectIntersect(r1, r2)) {
-                let tempVx = p1.vx;
-                let tempVy = p1.vy;
-                p1.vx = p2.vx;
-                p1.vy = p2.vy;
-                p2.vx = tempVx;
-                p2.vy = tempVy;
+                let tempVx = p1.vx; let tempVy = p1.vy;
+                p1.vx = p2.vx; p1.vy = p2.vy;
+                p2.vx = tempVx; p2.vy = tempVy;
 
                 let dx = (p1.x + p1.w/2) - (p2.x + p2.w/2);
                 let dy = (p1.y + p1.h/2) - (p2.y + p2.h/2);
@@ -360,11 +400,9 @@
                 let overlapY = (p1.h/2 + p2.h/2) - Math.abs(dy);
 
                 if (overlapX < overlapY) {
-                    if (dx > 0) { p1.x += overlapX/2; p2.x -= overlapX/2; }
-                    else { p1.x -= overlapX/2; p2.x += overlapX/2; }
+                    if (dx > 0) { p1.x += overlapX/2; p2.x -= overlapX/2; } else { p1.x -= overlapX/2; p2.x += overlapX/2; }
                 } else {
-                    if (dy > 0) { p1.y += overlapY/2; p2.y -= overlapY/2; }
-                    else { p1.y -= overlapY/2; p2.y += overlapY/2; }
+                    if (dy > 0) { p1.y += overlapY/2; p2.y -= overlapY/2; } else { p1.y -= overlapY/2; p2.y += overlapY/2; }
                 }
 
                 let impactX = (p1.x + p1.w/2 + p2.x + p2.w/2) / 2;
@@ -374,37 +412,38 @@
         }
 
         function updatePhotos() {
+            if (isUnlocked) return; // Stop bouncing calculations if unlocked
+            
             const screenBounds = { w: document.documentElement.clientWidth, h: document.documentElement.clientHeight };
             const keypadRect = keypadBox.getBoundingClientRect();
             
             if (isSpinning) {
-                currentRotation += 2.5; // Slightly faster spin
+                currentRotation += 3; // Spin speed
             }
 
-            photoStates.forEach(photo => {
+            photos.forEach(photo => {
                 photo.x += photo.vx;
                 photo.y += photo.vy;
-                
                 handleScreenCollision(photo, screenBounds);
                 handleObjectCollision(photo, keypadRect);
             });
 
-            for (let i = 0; i < photoStates.length; i++) {
-                for (let j = i + 1; j < photoStates.length; j++) {
-                    if (photoStates[i].w > 0 && photoStates[j].w > 0) {
-                        handlePhotoCollision(photoStates[i], photoStates[j]);
+            for (let i = 0; i < photos.length; i++) {
+                for (let j = i + 1; j < photos.length; j++) {
+                    if (photos[i].w > 0 && photos[j].w > 0) {
+                        handlePhotoCollision(photos[i], photos[j]);
                     }
                 }
             }
 
-            photoStates.forEach(photo => {
+            photos.forEach(photo => {
                 photo.elem.style.transform = `translate(${photo.x}px, ${photo.y}px) rotate(${currentRotation}deg)`;
             });
 
             requestAnimationFrame(updatePhotos);
         }
 
-        // --- 4. Floating Hearts Logic ---
+        // --- Floating Hearts Logic ---
         function createHeart() {
             const container = document.getElementById('heartContainer');
             const heart = document.createElement('div');
@@ -412,9 +451,13 @@
             heart.innerText = '💗'; 
 
             const randomX = Math.random() * 100;
-            const randomDuration = 4 + Math.random() * 5; 
-            const randomSize = 2 + Math.random() * 3; // Huge hearts for desktop
-            const randomDelay = Math.random() * 1; 
+            
+            // If unlocked, make hearts rise super fast. If normal, rise slowly.
+            const baseDuration = isUnlocked ? 1.5 : 4; 
+            const randomDuration = baseDuration + Math.random() * (isUnlocked ? 1.5 : 5); 
+            
+            const randomSize = 1.5 + Math.random() * 3; 
+            const randomDelay = Math.random() * 0.5; 
 
             heart.style.left = randomX + '%';
             heart.style.animationDuration = randomDuration + 's';
@@ -425,30 +468,24 @@
             setTimeout(() => heart.remove(), (randomDuration + randomDelay) * 1000);
         }
 
-        setInterval(createHeart, 150);
+        // Standard background hearts
+        let heartInterval = setInterval(createHeart, 250);
 
         window.addEventListener('load', () => {
             const screenW = document.documentElement.clientWidth;
             const screenH = document.documentElement.clientHeight;
-            const margin = 20; // Bigger margin from the edges
+            const margin = 20; 
             
             setTimeout(() => {
-                photoStates.forEach(photo => {
+                photos.forEach(photo => {
                     photo.w = photo.elem.offsetWidth;
                     photo.h = photo.elem.offsetHeight;
                 });
 
-                photoStates[0].x = margin;
-                photoStates[0].y = margin;
-                
-                photoStates[1].x = screenW - photoStates[1].w - margin;
-                photoStates[1].y = margin;
-                
-                photoStates[2].x = margin;
-                photoStates[2].y = screenH - photoStates[2].h - margin;
-                
-                photoStates[3].x = screenW - photoStates[3].w - margin;
-                photoStates[3].y = screenH - photoStates[3].h - margin;
+                photos[0].x = margin; photos[0].y = margin;
+                photos[1].x = screenW - photos[1].w - margin; photos[1].y = margin;
+                photos[2].x = margin; photos[2].y = screenH - photos[2].h - margin;
+                photos[3].x = screenW - photos[3].w - margin; photos[3].y = screenH - photos[3].h - margin;
 
                 requestAnimationFrame(updatePhotos);
             }, 50);
