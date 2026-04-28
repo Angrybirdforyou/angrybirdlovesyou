@@ -1,1 +1,55 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Secret for You</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            overflow: hidden;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        h1 { color: #d63384; font-size: 28px; }
+        .heart {
+            font-size: 80px;
+            animation: beat 1s infinite alternate;
+            cursor: pointer;
+        }
+        @keyframes beat {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        p { color: #333; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="heart" onclick="showMessage()">❤️</div>
+        <h1>For My Favorite Person</h1>
+        <p id="text">I built this website just for you!</p>
+    </div>
+
+    <script>
+        function showMessage() {
+            document.getElementById('text').innerHTML = "<b>I love you more than code!</b> <br><br> (And I built this from my phone!)";
+            document.getElementById('text').style.color = "#d63384";
+        }
+    </script>
+</body>
+</html>
