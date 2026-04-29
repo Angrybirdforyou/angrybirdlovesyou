@@ -8,6 +8,7 @@
     <style>
         body, html {
             height: 100vh;
+            width: 100vw;
             margin: 0;
             padding: 0;
             background-color: #000000;
@@ -17,6 +18,7 @@
             display: flex;
             align-items: center; 
             justify-content: center; 
+            touch-action: manipulation;
         }
 
         /* --- SCREEN CONTAINERS --- */
@@ -49,24 +51,20 @@
         
         .heart-half {
             position: relative; 
-            width: 125px; /* Exactly half of the container */
-            height: 250px; /* Full height of the container */
+            width: 125px; 
+            height: 250px; 
             transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
         
-        /* THIS FORCES BOTH IMAGES TO BE THE EXACT SAME SIZE/RESOLUTION ON SCREEN */
         .heart-half img {
             width: 125px; 
             height: 250px; 
-            object-fit: fill; /* Forces the image to stretch/shrink to perfectly fit the 125x250 box */
+            object-fit: fill; 
             image-rendering: pixelated; 
         }
         
-        /* Further apart */
         .left-half { transform: translateX(-120px); } 
         .right-half { transform: translateX(120px); } 
-        
-        /* When clicked, they meet perfectly in the middle */
         .merged .left-half, .merged .right-half { transform: translateX(0); }
 
         .name-label {
@@ -96,9 +94,7 @@
             90% { transform: translate(1px, 2px) rotate(0deg); }
             100% { transform: translate(0px, 0px) rotate(0deg); }
         }
-        .shake-active {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
+        .shake-active { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         
         #establishing-text {
             font-size: 1.2rem;
@@ -121,7 +117,6 @@
         #reconnect-screen { background-color: #000000; }
         .reconnect-text { color: #4CAF50; font-size: 1.2rem; margin-top: 25px; }
 
-        /* --- IMAGE FILL ANIMATION FOR LOADING SCREEN --- */
         .mc-heart-box { position: relative; width: 150px; height: 150px; }
         
         .heart-fill-wrapper {
@@ -152,30 +147,80 @@
             transition: opacity 0.5s;
         }
         
-        .type-char {
-            transition: opacity 0.1s; 
-        }
+        .type-char { transition: opacity 0.1s; }
 
         .cursor {
             display: inline-block;
-            width: 12px; 
-            height: 1.4rem; 
+            width: 12px; height: 1.4rem; 
             background-color: #ff6b81; 
             vertical-align: middle;
-            margin-left: 2px;
-            margin-right: -14px; 
+            margin-left: 2px; margin-right: -14px; 
             animation: blink 1s step-end infinite;
         }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        /* ========================================= */
+        /* --- FINAL SCREEN (CLASSIC EMOJI ANIMATION) --- */
+        /* ========================================= */
+        
+        #final-screen { background-color: #000000; font-family: -apple-system, sans-serif; }
+        
+        #tap-catcher {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer;
         }
 
-        .page-fade-out {
-            opacity: 0 !important;
-            transition: opacity 2s ease-in-out !important;
+        .ui-text {
+            position: absolute; bottom: 40px; color: #666; font-size: 0.9rem;
+            letter-spacing: 2px; text-transform: uppercase; transition: opacity 0.5s;
             pointer-events: none;
+        }
+
+        #emoji-scene { position: relative; width: 250px; height: 250px; }
+        .emoji-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* Float Up */
+        .float-controller { transform: translateY(100vh) scale(0.5); opacity: 0; }
+        .begin-float {
+            animation: floatUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+                       bobble 3s ease-in-out infinite 1.2s;
+        }
+
+        /* Impact Shake */
+        #impact-container { transform-origin: center; }
+        .trigger-impact { animation: hitShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+        /* Arrow flying from TOP-LEFT to BOTTOM-RIGHT */
+        .arrow-layer {
+            opacity: 0;
+            transform: translate(-300px, -300px); 
+        }
+        .shoot-arrow { animation: strikeIn 0.1s linear forwards; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes bobble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes strikeIn {
+            0% { transform: translate(-300px, -300px); opacity: 0; }
+            1% { opacity: 1; }
+            100% { transform: translate(0, 0); opacity: 1; }
+        }
+
+        /* Shake reflects impact from the top-left */
+        @keyframes hitShake {
+            0% { transform: scale(1) rotate(0deg); }
+            20% { transform: scale(0.9) translate(15px, 15px) rotate(-8deg); }
+            40% { transform: scale(1.05) translate(-8px, -8px) rotate(4deg); }
+            60% { transform: scale(0.98) translate(4px, 4px) rotate(-2deg); }
+            80% { transform: scale(1.02) translate(-2px, -2px) rotate(1deg); }
+            100% { transform: scale(1) translate(0,0) rotate(0deg); }
         }
 
     </style>
@@ -188,7 +233,6 @@
                 <img src="REPLACE_WITH_LEFT_HEART_LINK.png" alt="Left Heart">
                 <div class="name-label" id="lbl-beet">BEETROOT</div>
             </div>
-            
             <div class="heart-half right-half">
                 <img src="REPLACE_WITH_RIGHT_HEART_LINK.png" alt="Right Heart">
                 <div class="name-label" id="lbl-angry">Angrybird</div>
@@ -215,20 +259,54 @@
         <div class="reconnect-text">Connection Restablishing...</div>
     </div>
 
+    <div id="final-screen" class="screen">
+        <div id="tap-catcher"></div>
+        <div class="ui-text" id="final-ui-text">tap anywhere to continue</div>
+
+        <div id="emoji-scene">
+            <div id="float-container" class="emoji-layer float-controller">
+                <div id="impact-container" class="emoji-layer">
+                    
+                    <svg class="emoji-layer arrow-layer arrow-back" viewBox="0 0 250 250">
+                        <line x1="40" y1="40" x2="100" y2="100" stroke="#b07d5b" stroke-width="8" stroke-linecap="round"/>
+                        <path fill="#ffffff" stroke="#d1d1d1" stroke-width="2" d="M 40,40 L 20,20 L 50,20 Z" />
+                        <path fill="#ffffff" stroke="#d1d1d1" stroke-width="2" d="M 40,40 L 20,20 L 20,50 Z" />
+                    </svg>
+
+                    <svg class="emoji-layer" viewBox="0 0 250 250">
+                        <path fill="#ff3b30" d="M125,210 C125,210 25,135 25,75 C25,35 55,15 85,35 C105,48 125,70 125,70 C125,70 145,48 165,35 C195,15 225,35 225,75 C225,135 125,210 125,210 Z"/>
+                        <path fill="#ff6961" d="M50,75 C50,55 65,40 85,50 C90,52 75,55 60,75 C55,85 50,75 50,75 Z" opacity="0.6"/>
+                    </svg>
+
+                    <svg class="emoji-layer arrow-layer arrow-front" viewBox="0 0 250 250">
+                        <line x1="150" y1="150" x2="210" y2="210" stroke="#b07d5b" stroke-width="8" stroke-linecap="round"/>
+                        <polygon points="230,230 190,210 210,190" fill="#ced4da"/>
+                        <polygon points="230,230 190,210 210,210" fill="#adb5bd"/>
+                    </svg>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
+        // --- TEXT DATA ---
         const part1 = "i made this whole thing just for you.*in last few months it has been very hard for us ,*a lot of things happened ,*a lot of decisions that caused a lot of things .*i don't know what you were thinking ,*what made you do this ,*you were experimenting or whatever you were doing ,*those days were too harsh on me ,*but now there is nothing we can do about it ,*i learned my lessons to not love someone the same way i did ,*and I hope you also learned your lesson about priority and etc-etc ,*I have not made it this whole thing just to make you hear all this ,*Leave this.*Let's start a new chapter ,*A fresh start ,*This time let's give us one more nice and good chance ,*there is nothing else we can do ,*Just this time do take care of things ,";
 
         const part2 = "You are the best thing that happened to me ,*you think I regret choosing you over anyone ,*Trust me ,*I am still thankful to myself and will forever be ,*too choose you ,*Let's start fresh**#-your angrybird ⚡";
 
+        // --- CONSTANTS ---
         const AUDIO_VOLUME = 0.08; 
         const BASE_TYPE_SPEED = 120; 
         const PUNCTUATION_PAUSE = 900; 
 
+        // --- ELEMENTS ---
         const sStart = document.getElementById('start-screen');
         const sTerm = document.getElementById('terminal-screen');
         const sLost = document.getElementById('lost-screen');
         const sReconn = document.getElementById('reconnect-screen');
+        const sFinal = document.getElementById('final-screen');
         const tBox = document.getElementById('terminal-box');
         
         let audioCtx;
@@ -238,6 +316,7 @@
         const cursor = document.createElement('span');
         cursor.className = 'cursor';
 
+        // --- AUDIO ENGINE ---
         function playTypingSound() {
             if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
@@ -262,7 +341,6 @@
         function prepareText(textStr) {
             tBox.innerHTML = '';
             let isPink = false;
-            
             for (let char of textStr) {
                 if (char === '*') {
                     tBox.appendChild(document.createElement('br'));
@@ -282,7 +360,6 @@
             } else {
                 tBox.appendChild(cursor);
             }
-            
             typeChars = tBox.querySelectorAll('.type-char');
             typeIndex = 0;
         }
@@ -296,7 +373,6 @@
 
                 let charVal = charNode.innerText;
                 let delay = Math.random() * 30 + BASE_TYPE_SPEED; 
-                
                 if (charVal === ',' || charVal === '.') delay = PUNCTUATION_PAUSE; 
 
                 typeIndex++;
@@ -307,6 +383,7 @@
             }
         }
 
+        // --- PHASE 1: START SEQUENCE ---
         function startSequence() {
             if (isStarted) return;
             isStarted = true;
@@ -336,6 +413,7 @@
             }, 2500); 
         }
 
+        // --- PHASE 2: CONNECTION LOST ---
         function triggerConnectionLost() {
             tBox.style.opacity = '0';
             
@@ -356,7 +434,7 @@
                         prepareText(part2);
                         setTimeout(() => {
                             cursor.style.display = 'inline-block';
-                            typeNext(finishSequence);
+                            typeNext(transitionToFinal); // Moves to final screen instead of waiting
                         }, 800);
                     }, 4500); 
 
@@ -365,14 +443,45 @@
             }, 1000); 
         }
 
-        function finishSequence() {
-            console.log("Waiting 15 seconds...");
+        // --- PHASE 3: THE EMOJI FINALE ---
+        function transitionToFinal() {
             setTimeout(() => {
-                document.body.classList.add('page-fade-out');
+                // Fade out terminal, bring in Final Screen
+                tBox.style.opacity = '0';
                 setTimeout(() => {
-                    console.log("Move to next phase");
-                }, 2000);
-            }, 15000); 
+                    switchScreen(sFinal);
+                }, 1000);
+            }, 2000); // Gives 2 seconds to read the last sentence
+        }
+
+        // Final Screen Interaction Logic
+        const tapCatcher = document.getElementById('tap-catcher');
+        const finalUiText = document.getElementById('final-ui-text');
+        const floatCont = document.getElementById('float-container');
+        const impactCont = document.getElementById('impact-container');
+        const finalArrows = document.querySelectorAll('.arrow-layer');
+        let finalStarted = false;
+
+        tapCatcher.addEventListener('click', triggerFinalAnimation);
+        tapCatcher.addEventListener('touchstart', triggerFinalAnimation);
+
+        function triggerFinalAnimation(e) {
+            e.preventDefault();
+            if(finalStarted) return;
+            finalStarted = true;
+            
+            // Hide UI
+            tapCatcher.style.display = 'none';
+            finalUiText.style.opacity = '0';
+            
+            // Start Float Up
+            floatCont.classList.add('begin-float');
+            
+            // Wait for heart to settle, shoot arrow
+            setTimeout(() => {
+                finalArrows.forEach(a => a.classList.add('shoot-arrow'));
+                impactCont.classList.add('trigger-impact');
+            }, 1200);
         }
 
     </script>
