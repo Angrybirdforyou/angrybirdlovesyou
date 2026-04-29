@@ -2,47 +2,379 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Story</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Surprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #fff0f3; font-family: 'Georgia', serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .slideshow-container { text-align: center; width: 90%; max-width: 450px; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .slide { display: none; animation: fadeIn 1s; }
-        .active { display: block; }
-        img { width: 100%; height: 350px; object-fit: cover; border-radius: 20px; }
-        .caption { font-size: 1.2rem; color: #d63384; margin: 20px 0; font-style: italic; min-height: 50px; }
-        button { background-color: #ff6b81; color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-size: 1rem; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body, html {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #e0e0e0;
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        /* --- SCREEN CONTAINERS --- */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+        .active-screen {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- START SCREEN (BROKEN HEARTS) --- */
+        #start-screen { background-color: #000000; cursor: pointer; }
+        
+        .split-hearts-container {
+            position: relative;
+            width: 250px; 
+            height: 250px;
+            margin-bottom: 30px;
+            display: flex; 
+        }
+        
+        .heart-half {
+            position: relative; 
+            width: 125px; /* Exactly half of the container */
+            height: 250px; /* Full height of the container */
+            transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        /* THIS FORCES BOTH IMAGES TO BE THE EXACT SAME SIZE/RESOLUTION ON SCREEN */
+        .heart-half img {
+            width: 125px; 
+            height: 250px; 
+            object-fit: fill; /* Forces the image to stretch/shrink to perfectly fit the 125x250 box */
+            image-rendering: pixelated; 
+        }
+        
+        /* Further apart */
+        .left-half { transform: translateX(-120px); } 
+        .right-half { transform: translateX(120px); } 
+        
+        /* When clicked, they meet perfectly in the middle */
+        .merged .left-half, .merged .right-half { transform: translateX(0); }
+
+        .name-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            color: #ff6b81;
+            transition: opacity 0.5s ease;
+            white-space: nowrap; 
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        /* --- SCREEN SHAKE EFFECT --- */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-3px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        .shake-active {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        #establishing-text {
+            font-size: 1.2rem;
+            color: #888;
+            opacity: 0;
+            transition: opacity 1s ease;
+            margin-top: 20px;
+        }
+
+        /* --- CONNECTION LOST & RECONNECTING --- */
+        #lost-screen { background-color: #000000; }
+        .warning-icon { font-size: 4rem; margin-bottom: 15px; animation: glowRed 1s infinite alternate; }
+        .lost-text { color: #ef5350; font-size: 1.8rem; font-weight: bold; }
+
+        @keyframes glowRed {
+            from { text-shadow: 0 0 5px #ef5350; }
+            to { text-shadow: 0 0 20px #ef5350; }
+        }
+
+        #reconnect-screen { background-color: #000000; }
+        .reconnect-text { color: #4CAF50; font-size: 1.2rem; margin-top: 25px; }
+
+        /* --- IMAGE FILL ANIMATION FOR LOADING SCREEN --- */
+        .mc-heart-box { position: relative; width: 150px; height: 150px; }
+        
+        .heart-fill-wrapper {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 0%;
+            overflow: hidden;
+            transition: height 3s linear; 
+        }
+        
+        .heart-red {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 150px; height: 150px;
+            object-fit: contain;
+            object-position: bottom;
+            image-rendering: pixelated;
+        }
+
+        /* --- TERMINAL (TYPEWRITER) --- */
+        #terminal-box {
+            position: relative;
+            width: 90%;
+            max-width: 800px; 
+            font-size: 1.4rem; 
+            line-height: 1.9;
+            text-align: center; 
+            transition: opacity 0.5s;
+        }
+        
+        .type-char {
+            transition: opacity 0.1s; 
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 12px; 
+            height: 1.4rem; 
+            background-color: #ff6b81; 
+            vertical-align: middle;
+            margin-left: 2px;
+            margin-right: -14px; 
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .page-fade-out {
+            opacity: 0 !important;
+            transition: opacity 2s ease-in-out !important;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
-    <div class="slideshow-container">
-        <div class="slide active">
-            <img src="1.jpg">
-            <div class="caption">"The first photo we ever took together."</div>
-        </div>
-        <div class="slide">
-            <img src="2.jpg">
-            <div class="caption">"I love your smile in this one."</div>
-        </div>
-        <div class="slide">
-            <img src="10.jpg">
-            <div class="caption">"To many more adventures! I love you. ❤️"</div>
-        </div>
 
-        <button onclick="nextSlide()">Next Memory →</button>
-        <p id="counter" style="color: #ffb6c1; margin-top: 10px;">1 / 10</p>
+    <div id="start-screen" class="screen active-screen" onclick="startSequence()">
+        <div class="split-hearts-container" id="split-hearts">
+            <div class="heart-half left-half">
+                <img src="REPLACE_WITH_LEFT_HEART_LINK.png" alt="Left Heart">
+                <div class="name-label" id="lbl-beet">BEETROOT</div>
+            </div>
+            
+            <div class="heart-half right-half">
+                <img src="REPLACE_WITH_RIGHT_HEART_LINK.png" alt="Right Heart">
+                <div class="name-label" id="lbl-angry">Angrybird</div>
+            </div>
+        </div>
+        <div id="establishing-text">Establishing Connection...</div>
     </div>
 
+    <div id="terminal-screen" class="screen">
+        <div id="terminal-box"></div>
+    </div>
+
+    <div id="lost-screen" class="screen">
+        <div class="warning-icon">⚠️</div>
+        <div class="lost-text">Connection Lost</div>
+    </div>
+
+    <div id="reconnect-screen" class="screen">
+        <div class="mc-heart-box">
+            <div class="heart-fill-wrapper" id="fill-wrapper">
+                <img src="REPLACE_WITH_WHOLE_HEART_LINK.png" alt="Whole Heart" class="heart-red">
+            </div>
+        </div>
+        <div class="reconnect-text">Connection Restablishing...</div>
+    </div>
+
+
     <script>
-        let current = 0;
-        const slides = document.querySelectorAll('.slide');
-        function nextSlide() {
-            slides[current].classList.remove('active');
-            current = (current + 1) % slides.length;
-            slides[current].classList.add('active');
-            document.getElementById('counter').innerText = `${current + 1} / ${slides.length}`;
+        const part1 = "i made this whole thing just for you.*in last few months it has been very hard for us ,*a lot of things happened ,*a lot of decisions that caused a lot of things .*i don't know what you were thinking ,*what made you do this ,*you were experimenting or whatever you were doing ,*those days were too harsh on me ,*but now there is nothing we can do about it ,*i learned my lessons to not love someone the same way i did ,*and I hope you also learned your lesson about priority and etc-etc ,*I have not made it this whole thing just to make you hear all this ,*Leave this.*Let's start a new chapter ,*A fresh start ,*This time let's give us one more nice and good chance ,*there is nothing else we can do ,*Just this time do take care of things ,";
+
+        const part2 = "You are the best thing that happened to me ,*you think I regret choosing you over anyone ,*Trust me ,*I am still thankful to myself and will forever be ,*too choose you ,*Let's start fresh**#-your angrybird ⚡";
+
+        const AUDIO_VOLUME = 0.08; 
+        const BASE_TYPE_SPEED = 120; 
+        const PUNCTUATION_PAUSE = 900; 
+
+        const sStart = document.getElementById('start-screen');
+        const sTerm = document.getElementById('terminal-screen');
+        const sLost = document.getElementById('lost-screen');
+        const sReconn = document.getElementById('reconnect-screen');
+        const tBox = document.getElementById('terminal-box');
+        
+        let audioCtx;
+        let isStarted = false;
+        let typeIndex = 0;
+        let typeChars = [];
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+
+        function playTypingSound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.type = 'square'; 
+            osc.frequency.setValueAtTime(320 + Math.random() * 60, audioCtx.currentTime); 
+            
+            gainNode.gain.setValueAtTime(AUDIO_VOLUME, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.035);
         }
+
+        function switchScreen(showElement) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            showElement.classList.add('active-screen');
+        }
+
+        function prepareText(textStr) {
+            tBox.innerHTML = '';
+            let isPink = false;
+            
+            for (let char of textStr) {
+                if (char === '*') {
+                    tBox.appendChild(document.createElement('br'));
+                } else if (char === '#') {
+                    isPink = true;
+                } else {
+                    let sp = document.createElement('span');
+                    sp.className = 'type-char';
+                    sp.style.opacity = '0'; 
+                    sp.innerHTML = char === ' ' ? '&nbsp;' : char;
+                    if (isPink) sp.style.color = '#ff6b81';
+                    tBox.appendChild(sp);
+                }
+            }
+            if(tBox.firstChild) {
+                tBox.insertBefore(cursor, tBox.firstChild);
+            } else {
+                tBox.appendChild(cursor);
+            }
+            
+            typeChars = tBox.querySelectorAll('.type-char');
+            typeIndex = 0;
+        }
+
+        function typeNext(callback) {
+            if (typeIndex < typeChars.length) {
+                let charNode = typeChars[typeIndex];
+                charNode.style.opacity = '1';
+                charNode.after(cursor); 
+                playTypingSound();
+
+                let charVal = charNode.innerText;
+                let delay = Math.random() * 30 + BASE_TYPE_SPEED; 
+                
+                if (charVal === ',' || charVal === '.') delay = PUNCTUATION_PAUSE; 
+
+                typeIndex++;
+                setTimeout(() => typeNext(callback), delay);
+            } else {
+                cursor.style.display = 'none'; 
+                if (callback) callback();
+            }
+        }
+
+        function startSequence() {
+            if (isStarted) return;
+            isStarted = true;
+            
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            document.getElementById('split-hearts').classList.add('merged');
+            document.getElementById('lbl-beet').style.opacity = '0';
+            document.getElementById('lbl-angry').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('start-screen').classList.add('shake-active');
+                document.getElementById('establishing-text').style.opacity = '1';
+                playTypingSound();
+                setTimeout(playTypingSound, 100);
+
+                setTimeout(() => {
+                    switchScreen(sTerm);
+                    prepareText(part1);
+                    setTimeout(() => {
+                        cursor.style.display = 'inline-block';
+                        typeNext(triggerConnectionLost); 
+                    }, 800);
+                }, 1500);
+
+            }, 2500); 
+        }
+
+        function triggerConnectionLost() {
+            tBox.style.opacity = '0';
+            
+            setTimeout(() => {
+                switchScreen(sLost);
+                
+                setTimeout(() => {
+                    switchScreen(sReconn);
+                    document.getElementById('fill-wrapper').style.height = '0%';
+
+                    setTimeout(() => {
+                        document.getElementById('fill-wrapper').style.height = '100%';
+                    }, 500);
+
+                    setTimeout(() => {
+                        switchScreen(sTerm);
+                        tBox.style.opacity = '1';
+                        prepareText(part2);
+                        setTimeout(() => {
+                            cursor.style.display = 'inline-block';
+                            typeNext(finishSequence);
+                        }, 800);
+                    }, 4500); 
+
+                }, 4000); 
+
+            }, 1000); 
+        }
+
+        function finishSequence() {
+            console.log("Waiting 15 seconds...");
+            setTimeout(() => {
+                document.body.classList.add('page-fade-out');
+                setTimeout(() => {
+                    console.log("Move to next phase");
+                }, 2000);
+            }, 15000); 
+        }
+
     </script>
 </body>
 </html>
