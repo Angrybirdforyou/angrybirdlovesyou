@@ -43,36 +43,36 @@
         
         .split-hearts-container {
             position: relative;
-            width: 250px; 
-            height: 250px;
-            margin-bottom: 30px;
+            width: clamp(200px, 35vmin, 350px); 
+            height: clamp(200px, 35vmin, 350px);
+            margin-bottom: 70px;
             display: flex; 
         }
         
         .heart-half {
             position: relative; 
-            width: 125px; 
-            height: 250px; 
+            width: 50%; 
+            height: 100%; 
             transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
         
         .heart-half img {
-            width: 125px; 
-            height: 250px; 
+            width: 100%; 
+            height: 100%; 
             object-fit: fill; 
             image-rendering: pixelated; 
         }
         
-        .left-half { transform: translateX(-120px); } 
-        .right-half { transform: translateX(120px); } 
+        .left-half { transform: translateX(-130%); } 
+        .right-half { transform: translateX(130%); } 
         .merged .left-half, .merged .right-half { transform: translateX(0); }
 
         .name-label {
             position: absolute;
-            bottom: -30px;
+            bottom: -40px; 
             left: 50%;
             transform: translateX(-50%);
-            font-size: 1.2rem;
+            font-size: clamp(0.9rem, 2vmin, 1.2rem);
             color: #ff6b81;
             transition: opacity 0.5s ease;
             white-space: nowrap; 
@@ -97,17 +97,17 @@
         .shake-active { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         
         #establishing-text {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2.5vmin, 1.2rem);
             color: #888;
             opacity: 0;
             transition: opacity 1s ease;
-            margin-top: 20px;
+            margin-top: 10px; 
         }
 
         /* --- CONNECTION LOST & RECONNECTING --- */
         #lost-screen { background-color: #000000; }
-        .warning-icon { font-size: 4rem; margin-bottom: 15px; animation: glowRed 1s infinite alternate; }
-        .lost-text { color: #ef5350; font-size: 1.8rem; font-weight: bold; }
+        .warning-icon { font-size: clamp(3rem, 8vmin, 5rem); margin-bottom: 15px; animation: glowRed 1s infinite alternate; }
+        .lost-text { color: #ef5350; font-size: clamp(1.5rem, 4vmin, 2.5rem); font-weight: bold; }
 
         @keyframes glowRed {
             from { text-shadow: 0 0 5px #ef5350; }
@@ -115,9 +115,13 @@
         }
 
         #reconnect-screen { background-color: #000000; }
-        .reconnect-text { color: #4CAF50; font-size: 1.2rem; margin-top: 25px; }
+        .reconnect-text { color: #4CAF50; font-size: clamp(1rem, 2.5vmin, 1.2rem); margin-top: 25px; }
 
-        .mc-heart-box { position: relative; width: 150px; height: 150px; }
+        .mc-heart-box { 
+            position: relative; 
+            width: clamp(150px, 25vmin, 250px); 
+            height: clamp(150px, 25vmin, 250px); 
+        }
         
         .heart-fill-wrapper {
             position: absolute;
@@ -130,7 +134,7 @@
         .heart-red {
             position: absolute;
             bottom: 0; left: 0;
-            width: 150px; height: 150px;
+            width: 100%; height: 100%;
             object-fit: contain;
             object-position: bottom;
             image-rendering: pixelated;
@@ -141,8 +145,8 @@
             position: relative;
             width: 90%;
             max-width: 800px; 
-            font-size: 1.4rem; 
-            line-height: 1.9;
+            font-size: clamp(0.9rem, 2.5vmin, 1.4rem); 
+            line-height: clamp(1.4, 3.5vmin, 1.9);
             text-align: center; 
             transition: opacity 0.5s;
         }
@@ -151,18 +155,15 @@
 
         .cursor {
             display: inline-block;
-            width: 12px; height: 1.4rem; 
+            width: 10px; height: 1.2em; 
             background-color: #ff6b81; 
             vertical-align: middle;
-            margin-left: 2px; margin-right: -14px; 
+            margin-left: 2px; margin-right: -12px; 
             animation: blink 1s step-end infinite;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* ========================================= */
-        /* --- FINAL SCREEN (CLASSIC EMOJI ANIMATION) --- */
-        /* ========================================= */
-        
+        /* --- FINAL SCREEN --- */
         #final-screen { background-color: #000000; font-family: -apple-system, sans-serif; }
         
         #tap-catcher {
@@ -170,29 +171,30 @@
         }
 
         .ui-text {
-            position: absolute; bottom: 40px; color: #666; font-size: 0.9rem;
+            position: absolute; bottom: 40px; color: #666; font-size: clamp(0.7rem, 2vmin, 0.9rem);
             letter-spacing: 2px; text-transform: uppercase; transition: opacity 0.5s;
             pointer-events: none;
         }
 
-        #emoji-scene { position: relative; width: 250px; height: 250px; }
+        #emoji-scene { 
+            position: relative; 
+            width: clamp(200px, 35vmin, 350px); 
+            height: clamp(200px, 35vmin, 350px); 
+        }
         .emoji-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        /* Float Up */
         .float-controller { transform: translateY(100vh) scale(0.5); opacity: 0; }
         .begin-float {
             animation: floatUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
                        bobble 3s ease-in-out infinite 1.2s;
         }
 
-        /* Impact Shake */
-        #impact-container { transform-origin: center; }
+        #impact-container { transform-origin: center; transition: opacity 0.1s; }
         .trigger-impact { animation: hitShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* Arrow flying from TOP-LEFT to BOTTOM-RIGHT */
         .arrow-layer {
             opacity: 0;
-            transform: translate(-300px, -300px); 
+            transform: translate(-100vw, -100vh); 
         }
         .shoot-arrow { animation: strikeIn 0.1s linear forwards; }
 
@@ -208,12 +210,11 @@
         }
 
         @keyframes strikeIn {
-            0% { transform: translate(-300px, -300px); opacity: 0; }
+            0% { transform: translate(-100vw, -100vh); opacity: 0; }
             1% { opacity: 1; }
             100% { transform: translate(0, 0); opacity: 1; }
         }
 
-        /* Shake reflects impact from the top-left */
         @keyframes hitShake {
             0% { transform: scale(1) rotate(0deg); }
             20% { transform: scale(0.9) translate(15px, 15px) rotate(-8deg); }
@@ -221,6 +222,14 @@
             60% { transform: scale(0.98) translate(4px, 4px) rotate(-2deg); }
             80% { transform: scale(1.02) translate(-2px, -2px) rotate(1deg); }
             100% { transform: scale(1) translate(0,0) rotate(0deg); }
+        }
+
+        /* Thanos Dust Particles */
+        .dust-particle {
+            position: absolute;
+            border-radius: 1px;
+            pointer-events: none;
+            z-index: 1000;
         }
 
     </style>
@@ -289,11 +298,9 @@
         </div>
     </div>
 
-
     <script>
         // --- TEXT DATA ---
         const part1 = "i made this whole thing just for you.*in last few months it has been very hard for us ,*a lot of things happened ,*a lot of decisions that caused a lot of things .*i don't know what you were thinking ,*what made you do this ,*you were experimenting or whatever you were doing ,*those days were too harsh on me ,*but now there is nothing we can do about it ,*i learned my lessons to not love someone the same way i did ,*and I hope you also learned your lesson about priority and etc-etc ,*I have not made it this whole thing just to make you hear all this ,*Leave this.*Let's start a new chapter ,*A fresh start ,*This time let's give us one more nice and good chance ,*there is nothing else we can do ,*Just this time do take care of things ,";
-
         const part2 = "You are the best thing that happened to me ,*you think I regret choosing you over anyone ,*Trust me ,*I am still thankful to myself and will forever be ,*too choose you ,*Let's start fresh**#-your angrybird ⚡";
 
         // --- CONSTANTS ---
@@ -416,52 +423,46 @@
         // --- PHASE 2: CONNECTION LOST ---
         function triggerConnectionLost() {
             tBox.style.opacity = '0';
-            
             setTimeout(() => {
                 switchScreen(sLost);
-                
                 setTimeout(() => {
                     switchScreen(sReconn);
                     document.getElementById('fill-wrapper').style.height = '0%';
-
                     setTimeout(() => {
                         document.getElementById('fill-wrapper').style.height = '100%';
                     }, 500);
-
                     setTimeout(() => {
                         switchScreen(sTerm);
                         tBox.style.opacity = '1';
                         prepareText(part2);
                         setTimeout(() => {
                             cursor.style.display = 'inline-block';
-                            typeNext(transitionToFinal); // Moves to final screen instead of waiting
+                            typeNext(transitionToFinal); 
                         }, 800);
                     }, 4500); 
-
                 }, 4000); 
-
             }, 1000); 
         }
 
         // --- PHASE 3: THE EMOJI FINALE ---
         function transitionToFinal() {
             setTimeout(() => {
-                // Fade out terminal, bring in Final Screen
                 tBox.style.opacity = '0';
                 setTimeout(() => {
                     switchScreen(sFinal);
                 }, 1000);
-            }, 2000); // Gives 2 seconds to read the last sentence
+            }, 2000); 
         }
 
-        // Final Screen Interaction Logic
         const tapCatcher = document.getElementById('tap-catcher');
         const finalUiText = document.getElementById('final-ui-text');
         const floatCont = document.getElementById('float-container');
         const impactCont = document.getElementById('impact-container');
         const finalArrows = document.querySelectorAll('.arrow-layer');
         let finalStarted = false;
+        let snapStarted = false;
 
+        // First click triggers the float and arrow strike
         tapCatcher.addEventListener('click', triggerFinalAnimation);
         tapCatcher.addEventListener('touchstart', triggerFinalAnimation);
 
@@ -470,18 +471,95 @@
             if(finalStarted) return;
             finalStarted = true;
             
-            // Hide UI
             tapCatcher.style.display = 'none';
             finalUiText.style.opacity = '0';
             
-            // Start Float Up
             floatCont.classList.add('begin-float');
             
-            // Wait for heart to settle, shoot arrow
             setTimeout(() => {
                 finalArrows.forEach(a => a.classList.add('shoot-arrow'));
                 impactCont.classList.add('trigger-impact');
+                
+                // Once the arrow hits, wait 1.2 seconds, then re-enable touch for the dust effect
+                setTimeout(() => {
+                    finalUiText.innerText = ""; // Keeps the screen clean
+                    tapCatcher.style.display = 'block'; 
+                    
+                    // Switch listeners to the Thanos snap effect
+                    tapCatcher.removeEventListener('click', triggerFinalAnimation);
+                    tapCatcher.removeEventListener('touchstart', triggerFinalAnimation);
+                    tapCatcher.addEventListener('click', triggerThanosSnap);
+                    tapCatcher.addEventListener('touchstart', triggerThanosSnap);
+                }, 1200);
+                
             }, 1200);
+        }
+
+        // --- PHASE 4: THANOS DUST & SMOOTH REDIRECT ---
+        function triggerThanosSnap(e) {
+            e.preventDefault();
+            if(snapStarted) return;
+            snapStarted = true;
+            
+            tapCatcher.style.display = 'none'; // Lock out further taps
+            
+            // Get the exact coordinates of the heart container
+            const rect = floatCont.getBoundingClientRect();
+            
+            // Hide the original heart instantly
+            impactCont.style.opacity = '0';
+            
+            // Color palette representing the heart and arrow
+            const colors = ['#ff3b30', '#ff6961', '#b07d5b', '#ffffff', '#ced4da'];
+            
+            // Generate 80 dust particles
+            for(let i = 0; i < 80; i++) {
+                let p = document.createElement('div');
+                p.className = 'dust-particle';
+                
+                // Random size (2px to 6px)
+                p.style.width = (Math.random() * 4 + 2) + 'px';
+                p.style.height = p.style.width;
+                
+                // Random color from our palette
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Random starting position within the bounds of where the heart was
+                p.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                p.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                
+                document.body.appendChild(p);
+                
+                // Physics: Scatter outwards and slightly downwards
+                let tx = (Math.random() - 0.5) * 350; // Spread X
+                let ty = (Math.random() - 0.5) * 300 + 100; // Spread Y (biased down)
+                let rot = (Math.random() - 0.5) * 360; // Spin
+                
+                // Web Animations API for smooth hardware-accelerated movement
+                p.animate([
+                    { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) rotate(${rot}deg)`, opacity: 0 }
+                ], {
+                    duration: 1200 + Math.random() * 1500, // Varying speeds
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    fill: 'forwards'
+                });
+                
+                // Clean up DOM after animation
+                setTimeout(() => p.remove(), 3000);
+            }
+            
+            // Initiate the smooth, seamless redirect
+            setTimeout(() => {
+                // The body is already black, so we just fade out any lingering elements by dropping body opacity
+                document.body.style.transition = 'opacity 1s ease';
+                document.body.style.opacity = '0';
+                
+                setTimeout(() => {
+                    window.location.href = 'continue.html';
+                }, 1000); // Trigger navigation precisely when fade finishes
+                
+            }, 1800); // Let the dust animation play out for 1.8 seconds before fading out
         }
 
     </script>
