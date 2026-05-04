@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Buffered GPU Memory Stream</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000000; /* Absolute black for max contrast */
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            cursor: pointer;
+        }
+
+        #webgl-container {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10; pointer-events: none;
+            display: flex; flex-direction: column;
+            justify-content: space-between; padding: 40px 25px;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            color: rgba(255, 255, 255, 0.6); font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+
+        .logo { font-weight: 600; color: #fff; letter-spacing: 4px; font-size: 13px;}
+        
+        .progress-indicator { display: flex; gap: 6px; align-items: center; }
+
+        .progress-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: rgba(255,255,255,0.2); transition: 0.3s;
+        }
+        .progress-dot.active { background: #fff; transform: scale(1.5); }
+
+        .instruction {
+            align-self: center; text-align: center;
+            color: rgba(255, 255, 255, 0.9); font-size: 12px;
+            letter-spacing: 4px; text-transform: uppercase;
+            opacity: 0; transform: translateY(10px);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        /* Subtle loading spinner for the background process */
+        .loading-ring {
+            display: inline-block; width: 12px; height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px; opacity: 0; transition: opacity 0.3s;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .is-buffering .loading-ring { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="ui-layer">
+        <div class="top-bar">
+            <div class="logo">MEMORIES <div class="loading-ring" id="loader"></div></div>
+            <div class="progress-indicator" id="progressDots"></div>
+        </div>
+        <div class="instruction" id="instruction">Tap screen to transition</div>
+    </div>
+
+    <div id="webgl-container"></div>
+
+    <script>
+        // --- Configuration ---
+        // Reduced to exactly 8 images
+        const imageSources = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg'];
+        let currentIndex = 0;
+        
+        const TOTAL_PARTICLES = 150000; 
+
+        // UI Setup
+        const dotsContainer = document.getElementById('progressDots');
+        imageSources.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = `progress-dot ${i === 0 ? 'active' : ''}`;
+            dotsContainer.appendChild(dot);
+        });
+
+        // --- Three.js Setup ---
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.z = 1000;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        // --- GPU Shader Material ---
+        const vertexShader = `
+            attribute vec3 targetPosition;
+            attribute vec3 color;
+            uniform float uProgress;
+            uniform float uPixelRatio;
+            uniform float uSize;
+            varying vec3 vColor;
+            
+            void main() {
+                vColor = color;
+                vec3 currentPos = mix(position, targetPosition, uProgress);
+                vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
+                gl_PointSize = uSize * uPixelRatio * (1000.0 / -mvPosition.z);
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `;
+
+        const fragmentShader = `
+            varying vec3 vColor;
+            void main() {
+                gl_FragColor = vec4(vColor, 1.0);
+            }
+        `;
+
+        const uniforms = {
+            uProgress: { value: 0.0 }, 
+            uPixelRatio: { value: window.devicePixelRatio },
+            uSize: { value: 2.0 }
+        };
+
+        const material = new THREE.ShaderMaterial({
+            vertexShader, fragmentShader, uniforms,
+            transparent: false, depthTest: true
+        });
+
+        // --- Memory Buffers ---
+        const geometry = new THREE.BufferGeometry();
+        
+        // Active Buffers (What the GPU sees)
+        const activePositions = new Float32Array(TOTAL_PARTICLES * 3);
+        const activeTargets = new Float32Array(TOTAL_PARTICLES * 3);
+        const activeColors = new Float32Array(TOTAL_PARTICLES * 3);
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(activePositions, 3));
+        geometry.setAttribute('targetPosition', new THREE.BufferAttribute(activeTargets, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(activeColors, 3));
+
+        const particleSystem = new THREE.Points(geometry, material);
+        scene.add(particleSystem);
+
+        // Holding Buffers (Where we silently prepare the next image)
+        const preparedChaos = new Float32Array(TOTAL_PARTICLES * 3);
+        const preparedTargets = new Float32Array(TOTAL_PARTICLES * 3);
+        const preparedColors = new Float32Array(TOTAL_PARTICLES * 3);
+        let preparedSize = 2.0;
+        
+        let isAnimating = true; 
+        let isNextImageReady = false; 
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.uPixelRatio.value = window.devicePixelRatio;
+        });
+
+        // --- Core Logic: Background Pre-buffering ---
+        function generateChaosBuffer(targetArray) {
+            for (let i = 0; i < TOTAL_PARTICLES; i++) {
+                targetArray[i * 3] = (Math.random() - 0.5) * 4000;
+                targetArray[i * 3 + 1] = (Math.random() - 0.5) * 4000;
+                targetArray[i * 3 + 2] = (Math.random() - 0.5) * 3000 + 500;
+            }
+        }
+
+        // This runs silently while the user is looking at the screen
+        function prepareNextImage(index, isInitialLoad = false) {
+            document.body.classList.add('is-buffering');
+            isNextImageReady = false;
+
+            const img = new Image();
+            img.onload = () => {
+                const ratio = img.width / img.height;
+                const pWidth = Math.floor(Math.sqrt(TOTAL_PARTICLES * ratio));
+                const pHeight = Math.floor(TOTAL_PARTICLES / pWidth);
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = pWidth; tempCanvas.height = pHeight;
+                const tCtx = tempCanvas.getContext('2d');
+                tCtx.drawImage(img, 0, 0, pWidth, pHeight);
+                const data = tCtx.getImageData(0, 0, pWidth, pHeight).data;
+
+                const scale = Math.min((window.innerWidth * 0.9) / pWidth, (window.innerHeight * 0.8) / pHeight);
+                const offsetX = -(pWidth * scale) / 2;
+                const offsetY = (pHeight * scale) / 2;
+
+                preparedSize = scale * 1.15; 
+                generateChaosBuffer(preparedChaos); // Pre-calculate the explosion chaos
+
+                let i = 0;
+                for (let y = 0; y < pHeight; y++) {
+                    for (let x = 0; x < pWidth; x++) {
+                        if (i >= TOTAL_PARTICLES) break;
+                        const px = (y * pWidth + x) * 4;
+                        
+                        preparedTargets[i * 3] = offsetX + (x * scale);
+                        preparedTargets[i * 3 + 1] = offsetY - (y * scale);
+                        preparedTargets[i * 3 + 2] = 0; 
+
+                        preparedColors[i * 3] = data[px] / 255;
+                        preparedColors[i * 3 + 1] = data[px+1] / 255;
+                        preparedColors[i * 3 + 2] = data[px+2] / 255;
+                        i++;
+                    }
+                }
+
+                // Hide unused particles
+                for (; i < TOTAL_PARTICLES; i++) {
+                    preparedTargets[i * 3] = 9999; 
+                    preparedColors[i * 3] = 0;
+                }
+
+                isNextImageReady = true;
+                document.body.classList.remove('is-buffering');
+
+                // If this was the very first load, fire the animation immediately
+                if (isInitialLoad) {
+                    swapBuffersAndAnimate();
+                }
+            };
+            img.src = imageSources[index];
+        }
+
+        // --- Instant Execution Phase ---
+        // Because data is pre-buffered, this takes zero calculation time.
+        function swapBuffersAndAnimate() {
+            // Instantly inject the prepared math directly into the GPU
+            geometry.attributes.position.array.set(preparedChaos);
+            geometry.attributes.targetPosition.array.set(preparedTargets);
+            geometry.attributes.color.array.set(preparedColors);
+            
+            geometry.attributes.position.needsUpdate = true;
+            geometry.attributes.targetPosition.needsUpdate = true;
+            geometry.attributes.color.needsUpdate = true;
+            
+            uniforms.uSize.value = preparedSize;
+            isNextImageReady = false; // Reset lock
+
+            // GPU Transition: Assemble Image flawlessly
+            gsap.to(uniforms.uProgress, {
+                value: 1.0,
+                duration: 2.5,
+                ease: "expo.inOut",
+                onComplete: () => {
+                    isAnimating = false;
+                    gsap.to("#instruction", { opacity: 0.9, y: 0, duration: 1, ease: "power2.out" });
+                    
+                    // SILENTLY begin processing the next image in the background
+                    const nextIndex = (currentIndex + 1) % imageSources.length;
+                    prepareNextImage(nextIndex, false);
+                }
+            });
+        }
+
+        // --- Interaction ---
+        window.addEventListener('pointerup', () => {
+            // Prevent clicking if animating OR if the background preloader hasn't finished yet
+            if (isAnimating || !isNextImageReady) return;
+            isAnimating = true;
+
+            // UI Updates
+            document.querySelectorAll('.progress-dot')[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % imageSources.length;
+            document.querySelectorAll('.progress-dot')[currentIndex].classList.add('active');
+            gsap.to("#instruction", { opacity: 0, y: 10, duration: 0.3 });
+
+            // Explode outward!
+            gsap.to(uniforms.uProgress, {
+                value: 0.0,
+                duration: 1.5,
+                ease: "power3.in",
+                onComplete: () => {
+                    // Because the math was done in the background while you were waiting, 
+                    // this triggers instantly with no lag.
+                    swapBuffersAndAnimate();
+                }
+            });
+        });
+
+        // --- Render Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        // Boot up Sequence
+        prepareNextImage(0, true); // True flag tells it to assemble automatically on load
+        animate();
+
+    </script>
+</body>
+</html>
