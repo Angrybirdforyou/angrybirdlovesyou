@@ -70,7 +70,6 @@
         const imageSources = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg'];
         let currentIndex = 0;
         
-        // 80k is perfect for the motion effect. The solid texture will handle the final clarity.
         const TOTAL_PARTICLES = 80000; 
 
         // UI Setup
@@ -92,13 +91,13 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        // --- 1. The Solid Image Plane (Guarantees perfect quality) ---
+        // --- 1. The Solid Image Plane ---
         const planeGeo = new THREE.PlaneGeometry(1, 1);
         const planeMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
         const imagePlane = new THREE.Mesh(planeGeo, planeMat);
         scene.add(imagePlane);
 
-        // --- 2. The Particle System (Handles the explosion) ---
+        // --- 2. The Particle System ---
         const vertexShader = `
             attribute vec3 targetPosition;
             attribute vec3 color;
@@ -179,12 +178,14 @@
             isNextImageReady = false;
 
             const img = new Image();
+            // Important for GitHub Pages: allows cross-origin reading if needed, though relative paths usually bypass this.
+            img.crossOrigin = "Anonymous"; 
+            
             img.onload = () => {
-                // Create the native texture for the solid plane
-                preparedTexture = new THREE.Texture(img);
-                preparedTexture.needsUpdate = true;
-                // Ensures perfectly sharp texture rendering
+                // FIX: Use CanvasTexture which handles non-power-of-two JPEGs much better
+                preparedTexture = new THREE.CanvasTexture(img);
                 preparedTexture.minFilter = THREE.LinearFilter; 
+                preparedTexture.magFilter = THREE.LinearFilter;
 
                 const ratio = img.width / img.height;
                 const pWidth = Math.floor(Math.sqrt(TOTAL_PARTICLES * ratio));
@@ -196,11 +197,9 @@
                 tCtx.drawImage(img, 0, 0, pWidth, pHeight);
                 const data = tCtx.getImageData(0, 0, pWidth, pHeight).data;
 
-                // Max bounding box for the screen
                 const maxW = Math.min(window.innerWidth * 0.9, 800);
                 const maxH = Math.min(window.innerHeight * 0.8, 800);
                 
-                // Keep exact aspect ratio
                 const scaleToFit = Math.min(maxW / img.width, maxH / img.height);
                 preparedWidth = img.width * scaleToFit;
                 preparedHeight = img.height * scaleToFit;
@@ -216,7 +215,6 @@
                         if (i >= TOTAL_PARTICLES) break;
                         const px = (y * pWidth + x) * 4;
                         
-                        // Center points exactly over the solid mesh
                         preparedTargets[i * 3] = (x * displayScale) - (preparedWidth / 2) + (displayScale / 2);
                         preparedTargets[i * 3 + 1] = -(y * displayScale) + (preparedHeight / 2) - (displayScale / 2);
                         preparedTargets[i * 3 + 2] = 0; 
@@ -242,7 +240,6 @@
         }
 
         function swapAndAssemble() {
-            // Instantly inject pre-calculated particle math
             geometry.attributes.position.array.set(preparedChaos);
             geometry.attributes.targetPosition.array.set(preparedTargets);
             geometry.attributes.color.array.set(preparedColors);
@@ -250,23 +247,22 @@
             geometry.attributes.targetPosition.needsUpdate = true;
             geometry.attributes.color.needsUpdate = true;
             
-            // Setup the solid plane with the new image
+            // FIX: Force the material to recognize the new texture
             planeMat.map = preparedTexture;
-            planeMat.opacity = 0; // Hidden initially
+            planeMat.needsUpdate = true; 
+            planeMat.opacity = 0; 
             imagePlane.scale.set(preparedWidth, preparedHeight, 1);
             
             uniforms.uSize.value = preparedSize;
-            uniforms.uAlpha.value = 1.0; // Particles fully visible
+            uniforms.uAlpha.value = 1.0; 
             
             isNextImageReady = false; 
 
-            // 1. Assemble Particles
             gsap.to(uniforms.uProgress, {
                 value: 1.0,
                 duration: 2.2,
                 ease: "expo.out",
                 onComplete: () => {
-                    // 2. The Magic Trick: Fade in the solid photo, fade out the particles
                     gsap.to(planeMat, { opacity: 1.0, duration: 0.6 });
                     gsap.to(uniforms.uAlpha, { 
                         value: 0.0, 
@@ -274,7 +270,6 @@
                         onComplete: () => {
                             isAnimating = false;
                             gsap.to("#instruction", { opacity: 0.9, y: 0, duration: 0.8, ease: "power2.out" });
-                            // Silently prepare next image
                             const nextIndex = (currentIndex + 1) % imageSources.length;
                             prepareNextImage(nextIndex, false);
                         }
@@ -292,17 +287,14 @@
             document.querySelectorAll('.progress-dot')[currentIndex].classList.add('active');
             gsap.to("#instruction", { opacity: 0, y: 10, duration: 0.3 });
 
-            // 1. Instantly hide the solid photo, reveal the particles
             planeMat.opacity = 0;
             uniforms.uAlpha.value = 1.0;
 
-            // 2. Explode the current particles
             gsap.to(uniforms.uProgress, {
                 value: 0.0,
                 duration: 1.2,
                 ease: "power2.in",
                 onComplete: () => {
-                    // 3. Swap to the next image buffers and assemble
                     swapAndAssemble();
                 }
             });
@@ -313,7 +305,6 @@
             renderer.render(scene, camera);
         }
 
-        // Start
         prepareNextImage(0, true); 
         animate();
 
