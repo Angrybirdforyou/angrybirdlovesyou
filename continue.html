@@ -178,11 +178,9 @@
             isNextImageReady = false;
 
             const img = new Image();
-            // Important for GitHub Pages: allows cross-origin reading if needed, though relative paths usually bypass this.
             img.crossOrigin = "Anonymous"; 
             
             img.onload = () => {
-                // FIX: Use CanvasTexture which handles non-power-of-two JPEGs much better
                 preparedTexture = new THREE.CanvasTexture(img);
                 preparedTexture.minFilter = THREE.LinearFilter; 
                 preparedTexture.magFilter = THREE.LinearFilter;
@@ -247,7 +245,6 @@
             geometry.attributes.targetPosition.needsUpdate = true;
             geometry.attributes.color.needsUpdate = true;
             
-            // FIX: Force the material to recognize the new texture
             planeMat.map = preparedTexture;
             planeMat.needsUpdate = true; 
             planeMat.opacity = 0; 
@@ -269,7 +266,13 @@
                         duration: 0.6,
                         onComplete: () => {
                             isAnimating = false;
+                            
+                            // Check if this was the last image. If so, change instruction text.
+                            if (currentIndex === imageSources.length - 1) {
+                                document.getElementById("instruction").innerText = "Tap to open cutest photos";
+                            }
                             gsap.to("#instruction", { opacity: 0.9, y: 0, duration: 0.8, ease: "power2.out" });
+
                             const nextIndex = (currentIndex + 1) % imageSources.length;
                             prepareNextImage(nextIndex, false);
                         }
@@ -280,6 +283,21 @@
 
         window.addEventListener('pointerup', () => {
             if (isAnimating || !isNextImageReady) return;
+
+            // --- ADDED: Check if we are at the last image and redirect ---
+            if (currentIndex === imageSources.length - 1) {
+                // Gentle fade to black then redirect
+                gsap.to(document.body, { 
+                    opacity: 0, 
+                    duration: 1, 
+                    ease: "power2.inOut", 
+                    onComplete: () => {
+                        window.location.href = 'cute.html';
+                    }
+                });
+                return;
+            }
+
             isAnimating = true;
 
             document.querySelectorAll('.progress-dot')[currentIndex].classList.remove('active');
