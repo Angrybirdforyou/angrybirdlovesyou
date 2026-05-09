@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cutest Photos 🎀</title>
+    
+    <!-- Importing cute fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Varela+Round&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- GLOBAL & MAGICAL BACKGROUND --- */
+        body, html {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, #fff0f3, #ffebee, #fce4ec);
+            font-family: 'Varela Round', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- CUTE TITLE --- */
+        .title-container {
+            position: absolute;
+            top: 4%; 
+            width: 100%;
+            text-align: center;
+            z-index: 50;
+            pointer-events: none;
+            animation: gentleFloat 4s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        .main-title {
+            font-family: 'Pacifico', cursive;
+            color: #ff4757;
+            font-size: 3.4rem; 
+            margin: 0;
+            text-shadow: 0px 4px 15px rgba(255, 71, 87, 0.25);
+            letter-spacing: 2px;
+        }
+
+        /* --- PREMIUM SCRAPBOOK POLAROID --- */
+        #polaroid-frame {
+            position: relative;
+            width: 360px;  
+            height: 480px; 
+            background: #ffffff;
+            padding: 18px;
+            padding-bottom: 75px; 
+            border-radius: 14px;
+            box-shadow: 0 30px 60px rgba(255, 107, 129, 0.25), 
+                        0 10px 20px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+            
+            /* Smooth tilt transition */
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translate3d(0,0,0) rotate(-2deg); 
+            
+            will-change: transform;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+
+        /* --- CUTE TOP RIBBON 🎀 --- */
+        .top-ribbon {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.8rem;
+            z-index: 110;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+            pointer-events: none;
+        }
+
+        /* --- THE PHOTOS (PRE-LOADED FOR ZERO LAG) --- */
+        .photo-layer {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            width: calc(100% - 36px);
+            height: calc(100% - 93px); 
+            object-fit: cover;
+            border-radius: 8px;
+            
+            /* Smooth cross-fade */
+            transition: opacity 0.8s ease-in-out;
+            will-change: opacity;
+        }
+
+        .photo-hidden {
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .photo-active {
+            opacity: 1;
+            z-index: 2; 
+        }
+
+        /* --- BOTTOM CONTROL BAR (COUNTER + BUTTON) --- */
+        .bottom-bar {
+            position: absolute;
+            bottom: 15px;
+            left: 18px;
+            width: calc(100% - 36px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .photo-counter {
+            font-family: 'Pacifico', cursive;
+            color: #ff6b81;
+            font-size: 1.4rem;
+            text-shadow: 0 2px 4px rgba(255, 107, 129, 0.2);
+            pointer-events: none;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #ff6b81, #ff4757);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: 'Varela Round', sans-serif;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(255, 71, 87, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .next-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+        }
+
+        .arrow {
+            display: inline-block;
+            font-size: 1.2rem;
+            animation: bounceArrow 0.8s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+
+        /* --- FLOATING EMOJIS --- */
+        #emoji-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            overflow: hidden;
+            contain: strict; 
+        }
+
+        .floating-emoji {
+            position: absolute;
+            bottom: -100px;
+            font-size: 2rem;
+            will-change: transform;
+            animation: floatUp linear infinite; 
+        }
+
+        /* --- KEYFRAMES --- */
+        @keyframes bounceArrow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(6px); }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translate3d(var(--drift), -120vh, 0) rotate(var(--spin)); opacity: 0; }
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            50% { transform: translate3d(0, -10px, 0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Floating Background Emojis -->
+    <div id="emoji-container"></div>
+
+    <!-- Cute Title -->
+    <div class="title-container">
+        <h1 class="main-title">CUTEST PHOTOS 🎀</h1>
+    </div>
+
+    <!-- Polaroid Photo Frame -->
+    <div id="polaroid-frame">
+        <!-- Cute Top Ribbon -->
+        <div class="top-ribbon">🎀</div>
+
+        <!-- 5 Images Loaded Immediately -->
+        <img id="photo-0" class="photo-layer photo-active" src="11.jpg" alt="Memory">
+        <img id="photo-1" class="photo-layer photo-hidden" src="12.jpg" alt="Memory">
+        <img id="photo-2" class="photo-layer photo-hidden" src="13.jpg" alt="Memory">
+        <img id="photo-3" class="photo-layer photo-hidden" src="14.jpg" alt="Memory">
+        <img id="photo-4" class="photo-layer photo-hidden" src="15.jpg" alt="Memory">
+        
+        <!-- Bottom Controls -->
+        <div class="bottom-bar">
+            <!-- Counter updated with the new emoji -->
+            <div class="photo-counter" id="counter-text">1 / 5 🧿</div>
+            <button class="next-btn" onclick="nextPhoto()">Next <span class="arrow">➔</span></button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. ZERO-LAG PHOTO GALLERY LOGIC ---
+        const totalPhotos = 5;
+        let currentIndex = 0;
+        let isTransitioning = false;
+
+        function nextPhoto() {
+            if (isTransitioning) return; // Block spam clicks while the fade happens
+            isTransitioning = true;
+
+            const currentImg = document.getElementById(`photo-${currentIndex}`);
+            
+            // Move to the next index (0 -> 1 -> 2 -> 3 -> 4 -> 0)
+            currentIndex = (currentIndex + 1) % totalPhotos;
+            
+            const nextImg = document.getElementById(`photo-${currentIndex}`);
+
+            // Fade out the old and fade in the new via CSS opacity
+            currentImg.classList.remove('photo-active');
+            currentImg.classList.add('photo-hidden');
+            
+            nextImg.classList.remove('photo-hidden');
+            nextImg.classList.add('photo-active');
+
+            // Update the counter text with the new emoji
+            document.getElementById('counter-text').innerText = `${currentIndex + 1} / ${totalPhotos} 🧿`;
+
+            // Alternate the polaroid tilt direction for a playful feel
+            const frame = document.getElementById('polaroid-frame');
+            frame.style.transform = (currentIndex % 2 === 0) ? 'translate3d(0,0,0) rotate(-2deg)' : 'translate3d(0,0,0) rotate(3deg)';
+
+            // Unlock clicking precisely after the CSS transition finishes
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 800); 
+        }
+
+        // --- 2. ZERO-LAG GPU EMOJI GENERATOR ---
+        const container = document.getElementById('emoji-container');
+        const TOTAL_HEARTS = 20; 
+
+        for (let i = 0; i < TOTAL_HEARTS; i++) {
+            const el = document.createElement('div');
+            el.classList.add('floating-emoji');
+            
+            el.innerText = '💗';
+
+            const startX = Math.random() * 100; 
+            el.style.left = startX + 'vw';
+
+            const size = 1.2 + Math.random() * 2; 
+            el.style.fontSize = size + 'rem';
+
+            const duration = 4 + Math.random() * 5; 
+            el.style.animationDuration = duration + 's';
+
+            const delay = Math.random() * -10; 
+            el.style.animationDelay = delay + 's';
+
+            const driftX = (Math.random() - 0.5) * 150; 
+            const spin = (Math.random() - 0.5) * 90;    
+            el.style.setProperty('--drift', driftX + 'px');
+            el.style.setProperty('--spin', spin + 'deg');
+
+            container.appendChild(el);
+        }
+    </script>
+</body>
+</html>
