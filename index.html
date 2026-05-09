@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Locked with Love - The Secret Vault 💖</title>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <!-- Added GSAP for the cinematic intro -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         /* --- GLOBAL & BACKGROUND --- */
         body, html {
@@ -18,6 +20,37 @@
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation; /* Prevents touch delay and zoom */
+        }
+
+        /* --- PREMIUM CINEMATIC INTRO --- */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #030303; /* Cinematic black */
+            z-index: 99999; /* Above absolutely everything */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: all; /* Blocks clicks to the vault underneath */
+        }
+
+        .intro-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 300;
+            opacity: 0;
+            text-align: center;
+            padding: 0 20px;
+            line-height: 1.6;
+            max-width: 90%;
+            
+            /* Anti-lag GPU Acceleration properties */
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            transform: translateZ(0);
         }
 
         /* --- THE FIXED KEYPAD BOX (FROSTED GLASS UPGRADE) --- */
@@ -143,6 +176,7 @@
             left: 0; 
             top: 0;
             transition: opacity 1.2s ease-in-out; /* Smooth fading */
+            will-change: transform; /* Optimized for movement */
         }
 
         /* --- FLOATING HEARTS --- */
@@ -160,6 +194,7 @@
             color: rgba(255, 107, 129, 0.8);
             animation: floatHearts linear infinite forwards;
             opacity: 0;
+            will-change: transform, opacity; /* Optimized */
         }
 
         @keyframes floatHearts {
@@ -203,6 +238,11 @@
 </head>
 <body>
 
+    <!-- Premium Intro Overlay -->
+    <div id="intro-screen">
+        <div class="intro-text" id="intro-text-content"></div>
+    </div>
+
     <div id="pageOverlay"></div>
 
     <div id="keypadBox">
@@ -226,6 +266,7 @@
     <img id="photo4" class="bounce-photo" src="./us.jpg" alt="Photo">
 
     <script>
+        // --- ORIGINAL VAULT LOGIC ---
         let currentPIN = "";
         const CORRECT_PIN = "18"; // <-- CHANGE THIS
         const display = document.getElementById('pinDisplay');
@@ -468,8 +509,8 @@
             setTimeout(() => heart.remove(), (randomDuration + randomDelay) * 1000);
         }
 
-        // Standard background hearts
-        let heartInterval = setInterval(createHeart, 250);
+        // Declare the interval variable but DO NOT start it yet
+        let heartInterval; 
 
         window.addEventListener('load', () => {
             const screenW = document.documentElement.clientWidth;
@@ -487,8 +528,68 @@
                 photos[2].x = margin; photos[2].y = screenH - photos[2].h - margin;
                 photos[3].x = screenW - photos[3].w - margin; photos[3].y = screenH - photos[3].h - margin;
 
-                requestAnimationFrame(updatePhotos);
+                // Intentionally NOT calling requestAnimationFrame(updatePhotos) here yet to prevent lag during intro
             }, 50);
+        });
+
+        // ==========================================
+        // --- ADDED: CINEMATIC INTRO SEQUENCE ---
+        // ==========================================
+        const introLines = [
+            "Welcome",
+            "This page is exclusively coded from the root to the top",
+            "Just for Beetroot 🎀",
+            "Made with love",
+            "By ANGRYBIRD ⚡",
+            "I LOVE YOU 3000"
+        ];
+
+        const introScreen = document.getElementById('intro-screen');
+        const introTextElem = document.getElementById('intro-text-content');
+
+        // Safely intercept keyboard inputs so they don't type in the vault while intro is playing
+        window.addEventListener('keydown', (e) => {
+            if (introScreen.style.display !== 'none') {
+                e.stopPropagation(); // Stops it from reaching the vault logic
+            }
+        }, true); // The 'true' uses the capturing phase to catch it first
+
+        // GSAP Timeline setup
+        const tl = gsap.timeline({
+            onComplete: () => {
+                // Fade out the black screen revealing the vault underneath
+                gsap.to(introScreen, { 
+                    opacity: 0, 
+                    duration: 1.5, 
+                    ease: "power2.inOut", 
+                    onComplete: () => {
+                        introScreen.style.display = 'none';
+                        
+                        // --- START THE BACKGROUND ANIMATIONS NOW ---
+                        // Now that the intro is completely finished, we start the heavy tasks
+                        heartInterval = setInterval(createHeart, 250);
+                        requestAnimationFrame(updatePhotos);
+                    }
+                });
+            }
+        });
+
+        // Loop through the text array and append exactly 6-second sequences for each
+        introLines.forEach((text) => {
+            tl.call(() => { introTextElem.innerText = text; })
+              // Fade in and scale up (4 seconds), forcing GPU layers
+              .fromTo(introTextElem, 
+                  { opacity: 0, scale: 0.95, force3D: true }, 
+                  { opacity: 1, scale: 1, duration: 4.0, ease: "power3.out", force3D: true }
+              )
+              // Fade out and continue scaling slightly (2 seconds) -> Total 6s gap
+              .to(introTextElem, { 
+                  opacity: 0, 
+                  scale: 1.05, 
+                  duration: 2.0, 
+                  ease: "power2.inOut",
+                  force3D: true
+              });
         });
 
     </script>
