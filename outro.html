@@ -17,7 +17,7 @@
             
             /* The Photo Background with a Cinematic Dark Overlay */
             background-color: #030303; 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('26.jpg');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('./24.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -53,7 +53,7 @@
         /* The Final "I LOVE YOU" Text (Standard Font, Pink) */
         .final-text {
             color: #ff6b81; /* Premium Pink */
-            font-size: 2.2rem; /* Slightly larger, but same font */
+            font-size: 2.2rem; 
             letter-spacing: 6px;
             text-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255, 107, 129, 0.3);
             display: inline-block;
@@ -111,7 +111,7 @@
         const lines = [
             "Did you like it?",
             "This website took",
-            "40 days",
+            "40 days and",
             "total of",
             "121 hours",
             "32 minutes",
@@ -164,22 +164,22 @@
         // --- GSAP TIMELINE ---
         const tl = gsap.timeline();
 
-        // 1. Loop through the first 10 lines (6 seconds each)
+        // 1. Loop through the first 10 lines (5 seconds each)
         lines.forEach((text) => {
             tl.call(() => { 
                 textElem.innerText = text; 
                 textElem.className = 'cinematic-text'; 
             })
-            // Fade in & Scale up slightly (4 seconds)
+            // Fade in & Scale up slightly (3.5 seconds)
             .fromTo(textElem, 
                 { opacity: 0, scale: 0.95, force3D: true }, 
-                { opacity: 1, scale: 1, duration: 4.0, ease: "power3.out", force3D: true }
+                { opacity: 1, scale: 1, duration: 3.5, ease: "power3.out", force3D: true }
             )
-            // Fade out & Scale up slightly more (2 seconds)
+            // Fade out & Scale up slightly more (1.5 seconds) -> Total 5s gap
             .to(textElem, { 
                 opacity: 0, 
                 scale: 1.05, 
-                duration: 2.0, 
+                duration: 1.5, 
                 ease: "power2.inOut", 
                 force3D: true 
             });
