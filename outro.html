@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Beetroot 💖</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <style>
+        body, html {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            
+            /* The Photo Background with a Cinematic Dark Overlay */
+            background-color: #030303; 
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('26.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            
+            font-family: 'Varela Round', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #text-container {
+            position: relative;
+            z-index: 50;
+            text-align: center;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* Standard Cinematic Text */
+        .cinematic-text {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-weight: 300;
+            opacity: 0;
+            will-change: transform, opacity;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+
+        /* The Final "I LOVE YOU" Text (Standard Font, Pink) */
+        .final-text {
+            color: #ff6b81; /* Premium Pink */
+            font-size: 2.2rem; /* Slightly larger, but same font */
+            letter-spacing: 6px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255, 107, 129, 0.3);
+            display: inline-block;
+        }
+
+        /* --- LAG-FREE PREMIUM HEART EXPLOSION --- */
+        #heart-burst-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 1px; height: 1px;
+            z-index: 10;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .burst-heart {
+            position: absolute;
+            font-size: 2.5rem;
+            top: -1.25rem; left: -1.25rem;
+            opacity: 0;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+
+        /* The CSS Animation for the Premium Burst */
+        .explode {
+            animation: burstAnim 4.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        @keyframes burstAnim {
+            0% { 
+                transform: translate3d(0, 0, 0) scale(0) rotate(0deg); 
+                opacity: 1; 
+            }
+            30% {
+                opacity: 1;
+            }
+            100% { 
+                /* Moves outwards, downwards slightly (gravity), scales down, and spins */
+                transform: translate3d(var(--tx), calc(var(--ty) + 100px), 0) scale(var(--s)) rotate(var(--rot)); 
+                opacity: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="text-container">
+        <div id="main-text" class="cinematic-text"></div>
+    </div>
+
+    <div id="heart-burst-container"></div>
+
+    <script>
+        const lines = [
+            "Did you like it?",
+            "This website took",
+            "40 days",
+            "total of",
+            "121 hours",
+            "32 minutes",
+            "the code of this website",
+            "consist of",
+            "79,451 letters",
+            "by angrybird ⚡"
+        ];
+
+        const textElem = document.getElementById('main-text');
+        const heartContainer = document.getElementById('heart-burst-container');
+
+        // Pre-generate hearts for the explosion so there is 0 lag when it happens
+        const totalHearts = 50; 
+        const emojis = ['💗', '💖', '💘', '🎀', '✨'];
+        
+        for(let i = 0; i < totalHearts; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('burst-heart');
+            heart.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            // Calculate magical outward burst trajectories
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 120 + Math.random() * 300; // Spread radius
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            // Randomize final sizes and extreme rotations
+            const scale = 0.4 + Math.random() * 1.2;
+            const rotation = (Math.random() - 0.5) * 360; 
+
+            heart.style.setProperty('--tx', `${tx}px`);
+            heart.style.setProperty('--ty', `${ty}px`);
+            heart.style.setProperty('--s', scale);
+            heart.style.setProperty('--rot', `${rotation}deg`);
+            
+            heartContainer.appendChild(heart);
+        }
+
+        function triggerHeartExplosion() {
+            const hearts = document.querySelectorAll('.burst-heart');
+            hearts.forEach((heart, index) => {
+                // Stagger the explosion slightly for a dynamic 3D depth effect
+                setTimeout(() => {
+                    heart.classList.add('explode');
+                }, index * 15); 
+            });
+        }
+
+        // --- GSAP TIMELINE ---
+        const tl = gsap.timeline();
+
+        // 1. Loop through the first 10 lines (6 seconds each)
+        lines.forEach((text) => {
+            tl.call(() => { 
+                textElem.innerText = text; 
+                textElem.className = 'cinematic-text'; 
+            })
+            // Fade in & Scale up slightly (4 seconds)
+            .fromTo(textElem, 
+                { opacity: 0, scale: 0.95, force3D: true }, 
+                { opacity: 1, scale: 1, duration: 4.0, ease: "power3.out", force3D: true }
+            )
+            // Fade out & Scale up slightly more (2 seconds)
+            .to(textElem, { 
+                opacity: 0, 
+                scale: 1.05, 
+                duration: 2.0, 
+                ease: "power2.inOut", 
+                force3D: true 
+            });
+        });
+
+        // 2. The Final Line: "I LOVE YOU" (Normal font, Pink color) + Heart Explosion
+        tl.call(() => {
+            textElem.innerText = "I LOVE YOU";
+            textElem.className = 'cinematic-text final-text'; // Applies the pink color and slight size bump
+            triggerHeartExplosion(); // Fires the pre-loaded CSS hearts
+        })
+        // Simple, premium fade in that stays permanently on screen
+        .fromTo(textElem,
+            { opacity: 0, scale: 0.95, force3D: true },
+            { opacity: 1, scale: 1, duration: 4.0, ease: "power3.out", force3D: true }
+        );
+
+    </script>
+</body>
+</html>
