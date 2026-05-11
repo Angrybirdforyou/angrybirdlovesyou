@@ -18,7 +18,9 @@
             /* The Photo Background with a Cinematic Dark Overlay */
             background-color: #030303; 
             background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('./24.jpg');
-            background-size: cover;
+            
+            /* FIX: Changed 'cover' to 'contain' so it never stretches or tears pixels */
+            background-size: contain; 
             background-position: center;
             background-repeat: no-repeat;
             
