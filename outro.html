@@ -10,16 +10,17 @@
     
     <style>
         body, html {
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             margin: 0;
             padding: 0;
             overflow: hidden;
-            
+        }
+
+        body {
             /* The Photo Background */
             background-color: #030303; 
             background-image: url('./24.jpg');
-            
-            /* FIX: 'cover' zooms the image to fill 100% of the screen with no empty space */
             background-size: cover; 
             background-position: center;
             background-repeat: no-repeat;
@@ -33,10 +34,11 @@
         }
 
         /* --- THE BLACK CINEMATIC OVERLAY --- */
+        /* FIX: Made position 'fixed' and full screen to prevent the "divided" glitch */
         body::before {
             content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85));
             z-index: 1; /* Sits exactly on top of the photo, but below the text */
             pointer-events: none;
