@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cutest Photos 🎀</title>
     
-    <!-- Importing cute fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Varela+Round&display=swap" rel="stylesheet">
     
     <style>
@@ -23,6 +22,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* Smooth transition added for the fade to the outro */
+            transition: opacity 1s ease;
         }
 
         /* --- CUTE TITLE --- */
@@ -197,29 +198,22 @@
 </head>
 <body>
 
-    <!-- Floating Background Emojis -->
     <div id="emoji-container"></div>
 
-    <!-- Cute Title -->
     <div class="title-container">
         <h1 class="main-title">CUTEST PHOTOS 🎀</h1>
     </div>
 
-    <!-- Polaroid Photo Frame -->
     <div id="polaroid-frame">
-        <!-- Cute Top Ribbon -->
         <div class="top-ribbon">🎀</div>
 
-        <!-- 5 Images Loaded Immediately -->
         <img id="photo-0" class="photo-layer photo-active" src="11.jpg" alt="Memory">
         <img id="photo-1" class="photo-layer photo-hidden" src="12.jpg" alt="Memory">
         <img id="photo-2" class="photo-layer photo-hidden" src="13.jpg" alt="Memory">
         <img id="photo-3" class="photo-layer photo-hidden" src="14.jpg" alt="Memory">
         <img id="photo-4" class="photo-layer photo-hidden" src="15.jpg" alt="Memory">
         
-        <!-- Bottom Controls -->
         <div class="bottom-bar">
-            <!-- Counter updated with the new emoji -->
             <div class="photo-counter" id="counter-text">1 / 5 🧿</div>
             <button class="next-btn" onclick="nextPhoto()">Next <span class="arrow">➔</span></button>
         </div>
@@ -235,10 +229,21 @@
             if (isTransitioning) return; // Block spam clicks while the fade happens
             isTransitioning = true;
 
+            // --- REDIRECT LOGIC ---
+            // If we are on the very last photo (index 4), trigger the outro fade
+            if (currentIndex === totalPhotos - 1) {
+                // Gentle fade to white before transitioning to the dark outro
+                document.body.style.opacity = "0";
+                setTimeout(() => {
+                    window.location.href = 'outro.html';
+                }, 1000);
+                return; // Stop the rest of the function from running
+            }
+
             const currentImg = document.getElementById(`photo-${currentIndex}`);
             
-            // Move to the next index (0 -> 1 -> 2 -> 3 -> 4 -> 0)
-            currentIndex = (currentIndex + 1) % totalPhotos;
+            // Move to the next index
+            currentIndex = currentIndex + 1;
             
             const nextImg = document.getElementById(`photo-${currentIndex}`);
 
@@ -249,7 +254,7 @@
             nextImg.classList.remove('photo-hidden');
             nextImg.classList.add('photo-active');
 
-            // Update the counter text with the new emoji
+            // Update the counter text
             document.getElementById('counter-text').innerText = `${currentIndex + 1} / ${totalPhotos} 🧿`;
 
             // Alternate the polaroid tilt direction for a playful feel
