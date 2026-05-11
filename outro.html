@@ -15,11 +15,11 @@
             padding: 0;
             overflow: hidden;
             
-            /* The Photo Background with a Cinematic Dark Overlay */
+            /* The Photo Background */
             background-color: #030303; 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('./24.jpg');
+            background-image: url('./24.jpg');
             
-            /* FIX: Changed 'cover' to 'contain' so it never stretches or tears pixels */
+            /* FIX: 'contain' ensures the photo never stretches or tears */
             background-size: contain; 
             background-position: center;
             background-repeat: no-repeat;
@@ -30,6 +30,16 @@
             align-items: center;
             user-select: none;
             -webkit-user-select: none;
+        }
+
+        /* --- THE BLACK CINEMATIC OVERLAY --- */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85));
+            z-index: 1; /* Sits exactly on top of the photo, but below the text */
+            pointer-events: none;
         }
 
         #text-container {
@@ -49,7 +59,7 @@
             font-weight: 300;
             opacity: 0;
             will-change: transform, opacity;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
         }
 
         /* The Final "I LOVE YOU" Text (Standard Font, Pink) */
@@ -190,7 +200,7 @@
         // 2. The Final Line: "I LOVE YOU" (Normal font, Pink color) + Heart Explosion
         tl.call(() => {
             textElem.innerText = "I LOVE YOU";
-            textElem.className = 'cinematic-text final-text'; // Applies the pink color and slight size bump
+            textElem.className = 'cinematic-text final-text'; // Applies the pink color
             triggerHeartExplosion(); // Fires the pre-loaded CSS hearts
         })
         // Simple, premium fade in that stays permanently on screen
