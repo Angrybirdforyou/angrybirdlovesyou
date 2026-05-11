@@ -22,7 +22,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Smooth transition added for the fade to the outro */
+            /* Smooth transition added for the fade to the game */
             transition: opacity 1s ease;
         }
 
@@ -230,12 +230,12 @@
             isTransitioning = true;
 
             // --- REDIRECT LOGIC ---
-            // If we are on the very last photo (index 4), trigger the outro fade
+            // If we are on the very last photo (index 4), trigger the fade to game
             if (currentIndex === totalPhotos - 1) {
-                // Gentle fade to white before transitioning to the dark outro
+                // Gentle fade to white before transitioning to the game
                 document.body.style.opacity = "0";
                 setTimeout(() => {
-                    window.location.href = 'outro.html';
+                    window.location.href = 'game.html';
                 }, 1000);
                 return; // Stop the rest of the function from running
             }
