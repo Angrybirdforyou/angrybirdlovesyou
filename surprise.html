@@ -300,8 +300,8 @@
 
     <script>
         // --- TEXT DATA ---
-        const part1 = "i made this whole thing just for you.*in last few months it has been very hard for us ,*a lot of things happened ,*a lot of decisions that caused a lot of things .*i don't know what you were thinking ,*what made you do this ,*you were experimenting or whatever you were doing ,*those days were too harsh on me ,*but now there is nothing we can do about it ,*i learned my lessons to not love someone the same way i did ,*and I hope you also learned your lesson about priority and etc-etc ,*I have not made it this whole thing just to make you hear all this ,*Leave this.*Let's start a new chapter ,*A fresh start ,*This time let's give us one more nice and good chance ,*there is nothing else we can do ,*Just this time do take care of things ,";
-        const part2 = "You are the best thing that happened to me ,*you think I regret choosing you over anyone ,*Trust me ,*I am still thankful to myself and will forever be ,*too choose you ,*Let's start fresh**#-your angrybird ⚡";
+        const part1 = "this text was only for Beetroot ";
+        const part2 = "sorry guys not for you also if your screen is having issue with displaying this site try zooming out a bit ";
 
         // --- CONSTANTS ---
         const AUDIO_VOLUME = 0.08; 
@@ -491,77 +491,22 @@
                     tapCatcher.addEventListener('click', triggerThanosSnap);
                     tapCatcher.addEventListener('touchstart', triggerThanosSnap);
                 }, 1200);
-                
             }, 1200);
         }
 
-        // --- PHASE 4: THANOS DUST & SMOOTH REDIRECT ---
         function triggerThanosSnap(e) {
             e.preventDefault();
             if(snapStarted) return;
             snapStarted = true;
             
-            tapCatcher.style.display = 'none'; // Lock out further taps
+            impactCont.style.transition = "opacity 2s";
+            impactCont.style.opacity = "0";
             
-            // Get the exact coordinates of the heart container
-            const rect = floatCont.getBoundingClientRect();
-            
-            // Hide the original heart instantly
-            impactCont.style.opacity = '0';
-            
-            // Color palette representing the heart and arrow
-            const colors = ['#ff3b30', '#ff6961', '#b07d5b', '#ffffff', '#ced4da'];
-            
-            // Generate 80 dust particles
-            for(let i = 0; i < 80; i++) {
-                let p = document.createElement('div');
-                p.className = 'dust-particle';
-                
-                // Random size (2px to 6px)
-                p.style.width = (Math.random() * 4 + 2) + 'px';
-                p.style.height = p.style.width;
-                
-                // Random color from our palette
-                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Random starting position within the bounds of where the heart was
-                p.style.left = (rect.left + Math.random() * rect.width) + 'px';
-                p.style.top = (rect.top + Math.random() * rect.height) + 'px';
-                
-                document.body.appendChild(p);
-                
-                // Physics: Scatter outwards and slightly downwards
-                let tx = (Math.random() - 0.5) * 350; // Spread X
-                let ty = (Math.random() - 0.5) * 300 + 100; // Spread Y (biased down)
-                let rot = (Math.random() - 0.5) * 360; // Spin
-                
-                // Web Animations API for smooth hardware-accelerated movement
-                p.animate([
-                    { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
-                    { transform: `translate(${tx}px, ${ty}px) rotate(${rot}deg)`, opacity: 0 }
-                ], {
-                    duration: 1200 + Math.random() * 1500, // Varying speeds
-                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-                    fill: 'forwards'
-                });
-                
-                // Clean up DOM after animation
-                setTimeout(() => p.remove(), 3000);
-            }
-            
-            // Initiate the smooth, seamless redirect
             setTimeout(() => {
-                // The body is already black, so we just fade out any lingering elements by dropping body opacity
-                document.body.style.transition = 'opacity 1s ease';
-                document.body.style.opacity = '0';
-                
-                setTimeout(() => {
-                    window.location.href = 'continue.html';
-                }, 1000); // Trigger navigation precisely when fade finishes
-                
-            }, 1800); // Let the dust animation play out for 1.8 seconds before fading out
+                finalUiText.innerText = "The End";
+                finalUiText.style.opacity = '1';
+            }, 2000);
         }
-
     </script>
 </body>
 </html>
