@@ -506,6 +506,12 @@
             setTimeout(() => {
                 finalUiText.innerText = "The End";
                 finalUiText.style.opacity = '1';
+                
+                // Redirects to continue.html 1.5 seconds after "The End" appears
+                setTimeout(() => {
+                    window.location.href = "continue.html";
+                }, 1500);
+
             }, 2000);
         }
     </script>
